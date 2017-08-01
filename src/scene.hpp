@@ -21,6 +21,7 @@ public:
     std::vector<Plane> planes;
     std::vector<Sphere> spheres;
     std::vector<PointLight> lights;
+
 };
 
 

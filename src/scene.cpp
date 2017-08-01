@@ -16,5 +16,9 @@ bool Scene::intersect(Ray ray) {
         if (sphere.intersect(ray)) return true;
     }
 
+    for (Plane plane : planes) {
+        if (plane.intersect(ray)) return true;
+    }
+
     return false;
 }
