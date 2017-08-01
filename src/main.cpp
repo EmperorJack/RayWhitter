@@ -1,7 +1,12 @@
 #include <iostream>
 #include <vector>
 #include <glm/glm.hpp>
+#include <jpge.h>
 #include <scene.hpp>
+
+const int imageWidth = 512;
+const int imageHeight = 512;
+glm::vec3 image[imageWidth][imageHeight];
 
 glm::vec3 getLighting(Ray ray, Scene scene, float maxDepth) {
     glm::vec3 contribution = glm::vec3(0, 0, 0);
@@ -13,7 +18,7 @@ glm::vec3 getLighting(Ray ray, Scene scene, float maxDepth) {
         if (scene.intersect(ray)) {
 
             // Handle intersection
-            contribution.x = 1.0f;
+            contribution.x = 255.0f;
 
             break;
         } else {
@@ -50,10 +55,7 @@ int main() {
     Scene scene = makeScene();
 
     // Setup image buffer
-    int imageWidth = 48;
-    int imageHeight = 48;
-    glm::vec2 pixelScale = glm::vec2(48 / (float) imageWidth, 48 / (float) imageHeight);
-    glm::vec3 image[imageWidth][imageHeight];
+    glm::vec2 pixelScale = glm::vec2(50.0f / (float) imageWidth, 50.0f / (float) imageHeight);
     float maxDepth = 100.0f;
 
     // Begin progress bar
@@ -85,14 +87,28 @@ int main() {
     // End progress bar
     std::cout << "[" << 100 << "%" << "]" << std::endl;
 
+    uint8_t data[imageHeight][imageWidth * 3];
+
     // Output image file
     for (int y = 0; y < imageHeight; y++) {
         for (int x = 0; x < imageWidth; x++) {
-            float val = image[x][y].x;
-            std::cout << (val > 0.0f ? "11" : "00");
+            //float val = image[x][y].x;
+            //std::cout << (val > 0.0f ? "11" : "00");
+            data[y][x * 3] = (uint8_t) (image[x][y].x);
+            data[y][x * 3 + 1] = (uint8_t) (image[x][y].y);
+            data[y][x * 3 + 2] = (uint8_t) (image[x][y].z);
         }
-        std::cout << std::endl;
+        //std::cout << std::endl;
     }
 
+    std::cout << "Writing image file...";
+
+    // Writes JPEG image to a file.
+    // num_channels must be 1 (Y), 3 (RGB), or 4 (RGBA), image pitch must be width*num_channels.
+    // bool compress_image_to_jpeg_file(const char *pFilename, int width, int height, int num_channels, const uint8 *pImage_data, const params &comp_params = params());
+    jpge::compress_image_to_jpeg_file("test.jpg", imageWidth, imageHeight, 3, *data);
+
+    std::cout << " Finished" << std::endl;
+    
     return 0;
 }
