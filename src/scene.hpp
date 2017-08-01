@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <primatives.hpp>
+#include <intersection.hpp>
 #include <plane.hpp>
 #include <sphere.hpp>
 #include <point_light.hpp>
@@ -14,13 +15,13 @@
 class Scene {
 
 public:
-    Scene(glm::vec3 cameraPosition, std::vector<Plane> planes, std::vector<Sphere> spheres, std::vector<PointLight> lights);
-    bool intersect(Ray ray);
+    Scene(glm::vec3 cameraPosition);
+    Intersection intersect(Ray ray);
 
     glm::vec3 cameraPosition;
-    std::vector<Plane> planes;
-    std::vector<Sphere> spheres;
-    std::vector<PointLight> lights;
+    std::vector<Plane*> planes;
+    std::vector<Sphere*> spheres;
+    std::vector<PointLight*> lights;
 
 };
 

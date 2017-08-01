@@ -10,11 +10,12 @@
 class Plane {
 
 public:
-    Plane(glm::vec3 position, float width, float height);
+    Plane(glm::vec3 position, glm::vec3 normal, float width, float height);
     bool intersect(Ray ray);
 
 private:
     glm::vec3 position;
+    glm::vec3 normal;
     float width;
     float height;
 
