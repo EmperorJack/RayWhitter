@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <typeinfo>
 #include <glm/glm.hpp>
 #include <jpge.h>
 #include <scene.hpp>
@@ -18,15 +19,7 @@ glm::vec3 getLighting(Ray ray, Scene scene, float maxDepth) {
         Intersection intersect = scene.intersect(ray);
 
         if (intersect.hit) {
-
-            if (intersect.plane != nullptr) {
-                contribution.x = 1.0f;
-            } else if (intersect.sphere != nullptr) {
-                contribution.z = 1.0f;
-            }
-
-            //for (PointLight light : scene.lights) {}
-
+            contribution = intersect.shape->getColour();
             break;
         } else {
 
@@ -43,10 +36,9 @@ Scene makeScene() {
 
     Scene scene = Scene(eyePosition);
 
-    scene.spheres.push_back(new Sphere(glm::vec3(0.0f, -20.0f, 30.0f), 40.0f));
-    scene.spheres.push_back(new Sphere(glm::vec3(-50.0f, -20.0f, 0.0f), 20.0f));
-
-    scene.planes.push_back(new Plane(glm::vec3(0.0f, 20.0f, 50.0f), glm::vec3(0.0f, 0.01f, 0.0f), 50.0f, 50.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(0.0f, -20.0f, 30.0f), 30.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(-50.0f, -20.0f, 10.0f), 10.0f));
+    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 10.0f, 50.0f), glm::vec3(0.0f, 0.01f, 0.0f), 50.0f, 50.0f));
 
     scene.lights.push_back(new PointLight(glm::vec3(0.0f, 50.0f, 50.0f), glm::vec3(1.0f, 1.0f, 1.0f)));
 

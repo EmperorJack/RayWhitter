@@ -19,8 +19,7 @@ public:
     Intersection intersect(Ray ray);
 
     glm::vec3 cameraPosition;
-    std::vector<Plane*> planes;
-    std::vector<Sphere*> spheres;
+    std::vector<Shape*> shapes;
     std::vector<PointLight*> lights;
 
 };

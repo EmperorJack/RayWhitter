@@ -11,22 +11,16 @@ Scene::Scene(glm::vec3 cameraPosition) {
 Intersection Scene::intersect(Ray ray) {
     Intersection intersection;
     intersection.hit = false;
-    intersection.plane = nullptr;
-    intersection.sphere = nullptr;
+    intersection.shape = nullptr;
 
-    for (Plane* plane : planes) {
-        if (plane->intersect(ray)) {
-            intersection.hit = true;
-            intersection.plane = plane;
-            return intersection;
-        }
-    }
+    float tNear = 10000000000;
 
-    for (Sphere* sphere : spheres) {
-        if (sphere->intersect(ray)) {
+    for (Shape* shape : shapes) {
+        float t = 10000000000;
+        if (shape->intersect(ray, t) && t < tNear) {
+            tNear = t;
             intersection.hit = true;
-            intersection.sphere = sphere;
-            return intersection;
+            intersection.shape = shape;
         }
     }
 

@@ -6,12 +6,14 @@
 #define RAYWHITTER_PLANE_HPP
 
 #include <primatives.hpp>
+#include <shape.hpp>
 
-class Plane {
+class Plane : public Shape {
 
 public:
     Plane(glm::vec3 position, glm::vec3 normal, float width, float height);
-    bool intersect(Ray ray);
+    bool intersect(Ray ray, float &t);
+    glm::vec3 getColour();
 
 private:
     glm::vec3 position;

@@ -12,8 +12,7 @@ class Intersection {
 
 public:
     bool hit;
-    Sphere* sphere;
-    Plane* plane;
+    Shape* shape;
 
 };
 

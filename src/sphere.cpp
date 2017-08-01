@@ -9,6 +9,11 @@ Sphere::Sphere(glm::vec3 position, float radius) {
     this->radius = radius;
 }
 
-bool Sphere::intersect(Ray ray) {
-    return glm::distance(position, ray.getPosition()) < radius;
+bool Sphere::intersect(Ray ray, float &t) {
+    t = glm::distance(position, ray.getPosition());
+    return t < radius;
+}
+
+glm::vec3 Sphere::getColour() {
+    return glm::vec3(0.0f, 0.0f, 1.0f);
 }

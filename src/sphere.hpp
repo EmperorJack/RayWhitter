@@ -6,12 +6,14 @@
 #define RAYWHITTER_SPHERE_HPP
 
 #include <primatives.hpp>
+#include <shape.hpp>
 
-class Sphere {
+class Sphere : public Shape {
 
 public:
     Sphere(glm::vec3 position, float radius);
-    bool intersect(Ray ray);
+    bool intersect(Ray ray, float &t);
+    glm::vec3 getColour();
 
 private:
     glm::vec3 position;
