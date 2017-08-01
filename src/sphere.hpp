@@ -19,5 +19,4 @@ private:
 
 };
 
-
 #endif //RAYWHITTER_SPHERE_HPP

@@ -10,5 +10,5 @@ Sphere::Sphere(glm::vec3 position, float radius) {
 }
 
 bool Sphere::intersect(Ray ray) {
-    return false;
+    return glm::distance(position, ray.getPosition()) < radius;
 }
