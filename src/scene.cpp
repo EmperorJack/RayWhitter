@@ -11,6 +11,7 @@ Scene::Scene(glm::vec3 cameraPosition) {
 Intersection Scene::intersect(Ray ray) {
     Intersection intersection;
     intersection.hit = false;
+    intersection.t = 10000000000;
     intersection.shape = nullptr;
 
     float tNear = 10000000000;
@@ -20,6 +21,7 @@ Intersection Scene::intersect(Ray ray) {
         if (shape->intersect(ray, t) && t < tNear) {
             tNear = t;
             intersection.hit = true;
+            intersection.t = t;
             intersection.shape = shape;
         }
     }

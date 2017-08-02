@@ -12,6 +12,7 @@ class Intersection {
 
 public:
     bool hit;
+    float t;
     Shape* shape;
 
 };

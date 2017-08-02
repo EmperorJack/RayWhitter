@@ -19,12 +19,12 @@ glm::vec3 getLighting(Ray ray, Scene scene, float maxDepth) {
         Intersection intersect = scene.intersect(ray);
 
         if (intersect.hit) {
-            contribution = intersect.shape->getColour();
+            contribution = intersect.shape->getColour() * intersect.t;
             break;
         } else {
 
             // Advance ray
-            ray.time += 0.05f;
+            ray.time += 0.25f;
         }
     }
 
@@ -32,13 +32,14 @@ glm::vec3 getLighting(Ray ray, Scene scene, float maxDepth) {
 }
 
 Scene makeScene() {
-    glm::vec3 eyePosition = glm::vec3(0.0f, 50.0f, -100.0f);
+    glm::vec3 eyePosition = glm::vec3(0.0f, 0.0f, -100.0f);
 
     Scene scene = Scene(eyePosition);
 
-    scene.shapes.push_back(new Sphere(glm::vec3(0.0f, -20.0f, 30.0f), 30.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(-50.0f, -20.0f, 10.0f), 10.0f));
-    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 10.0f, 50.0f), glm::vec3(0.0f, 0.01f, 0.0f), 50.0f, 50.0f));
+    //scene.shapes.push_back(new Sphere(glm::vec3(0.0f, -20.0f, 30.0f), 30.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(-20.0f, -20.0f, 20.0f), 30.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(20.0f, 10.0f, 40.0f), 50.0f));
+    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 50.0f, 50.0f), glm::normalize(glm::vec3(0.0f, -0.01f, 0.0f)), 50.0f, 50.0f));
 
     scene.lights.push_back(new PointLight(glm::vec3(0.0f, 50.0f, 50.0f), glm::vec3(1.0f, 1.0f, 1.0f)));
 
@@ -53,7 +54,7 @@ int main() {
 
     // Setup image buffer
     glm::vec2 pixelScale = glm::vec2(100.0f / (float) imageWidth, 100.0f / (float) imageHeight);
-    float maxDepth = 500.0f;
+    float maxDepth = 300.0f;
 
     // Begin progress bar
     int totalSamples = imageWidth * imageHeight;
@@ -67,8 +68,8 @@ int main() {
             glm::vec2 pixelPosition = glm::vec2(x - imageWidth / 2, y - imageWidth / 2) * pixelScale;
 
             Ray ray;
-            ray.origin = glm::vec3(pixelPosition, 0.0f);
-            ray.direction = glm::vec3(pixelPosition, 0.0f) - scene.cameraPosition;
+            ray.origin = glm::vec3(pixelPosition, 0.0f); // scene.cameraPosition.z
+            ray.direction = glm::normalize(glm::vec3(pixelPosition, 0.0f) - scene.cameraPosition);
             ray.time = 0.0f;
 
             image[x][y] = getLighting(ray, scene, maxDepth);
