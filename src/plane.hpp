@@ -13,6 +13,7 @@ class Plane : public Shape {
 public:
     Plane(glm::vec3 position, glm::vec3 normal, float width, float height);
     bool intersect(Ray ray, float &t);
+    glm::vec3 getNormal(Ray ray);
     glm::vec3 getColour();
 
 private:

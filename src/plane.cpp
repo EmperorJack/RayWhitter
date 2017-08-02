@@ -23,6 +23,10 @@ bool Plane::intersect(Ray ray, float &t) {
     return t >= 0.0001f;
 }
 
+glm::vec3 Plane::getNormal(Ray ray) {
+    return normal;
+}
+
 glm::vec3 Plane::getColour() {
     return glm::vec3(1.0f, 0.0f, 0.0f);
 }

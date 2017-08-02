@@ -12,6 +12,7 @@ class Shape {
 
 public:
     virtual bool intersect(Ray ray, float &t);
+    virtual glm::vec3 getNormal(Ray ray);
     virtual glm::vec3 getColour();
 
 };
