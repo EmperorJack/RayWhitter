@@ -11,7 +11,7 @@
 class Sphere : public Shape {
 
 public:
-    Sphere(glm::vec3 position, float radius);
+    Sphere(glm::vec3 position, float radius, int id);
     bool intersect(Ray ray, float &t);
     glm::vec3 getNormal(glm::vec3 point);
     glm::vec3 getColour();

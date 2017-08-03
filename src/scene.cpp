@@ -14,12 +14,10 @@ Intersection Scene::intersect(Ray ray) {
     intersection.t = 10000000000;
     intersection.shape = nullptr;
 
-    float tNear = 10000000000;
-
     for (Shape* shape : shapes) {
         float t = 10000000000;
-        if (shape->intersect(ray, t) && t < tNear) {
-            tNear = t;
+        if (shape->intersect(ray, t) && t < intersection.t) {
+            intersection.t = t;
             intersection.hit = true;
             intersection.t = t;
             intersection.shape = shape;

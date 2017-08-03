@@ -6,9 +6,10 @@
 #include <algorithm>
 #include <iostream>
 
-Sphere::Sphere(glm::vec3 position, float radius) {
+Sphere::Sphere(glm::vec3 position, float radius, int id) {
     this->position = position;
     this->radius = radius;
+    this->id = id;
 }
 
 bool Sphere::intersect(Ray ray, float &t) {
@@ -46,7 +47,6 @@ bool Sphere::intersect(Ray ray, float &t) {
         }
 
 //        std::cout << "two in front" << std::endl;
-
         t = std::min(t0, t1);
         return true;
     }
@@ -55,7 +55,7 @@ bool Sphere::intersect(Ray ray, float &t) {
 }
 
 glm::vec3 Sphere::getNormal(glm::vec3 point) {
-    return glm::normalize(position - point);
+    return glm::normalize(point - position);
 }
 
 glm::vec3 Sphere::getColour() {

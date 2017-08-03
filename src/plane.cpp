@@ -4,11 +4,10 @@
 
 #include <plane.hpp>
 
-Plane::Plane(glm::vec3 position, glm::vec3 normal, float width, float height) {
+Plane::Plane(glm::vec3 position, glm::vec3 normal, int id) {
     this->position = position;
     this->normal = normal;
-    this->width = width;
-    this->height = height;
+    this->id = id;
 }
 
 bool Plane::intersect(Ray ray, float &t) {

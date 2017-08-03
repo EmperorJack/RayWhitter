@@ -10,11 +10,13 @@
 class PointLight {
 
 public:
-    PointLight(glm::vec3 position, glm::vec3 intensity);
+    PointLight(glm::vec3 position, float intensity, glm::vec3 colour);
+    void illuminate(glm::vec3 point, glm::vec3 &lightDirection, glm::vec3 &lightIntensity, float &distance);
 
-//private:
+private:
     glm::vec3 position;
-    glm::vec3 intensity;
+    float intensity;
+    glm::vec3 colour;
 };
 
 #endif //RAYWHITTER_POINT_LIGHT_HPP

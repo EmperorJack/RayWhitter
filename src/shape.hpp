@@ -15,6 +15,7 @@ public:
     virtual glm::vec3 getNormal(glm::vec3 point);
     virtual glm::vec3 getColour();
 
+    int id;
 };
 
 #endif //RAYWHITTER_SHAPE_HPP

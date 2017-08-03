@@ -4,11 +4,11 @@
 #include <jpge.h>
 #include <scene.hpp>
 
-const int imageWidth = 512 * 1.5f;
-const int imageHeight = 512 * 1.5f;
+const int imageWidth = 512 * 0.5f;
+const int imageHeight = 512 * 0.5f;
 glm::vec3 image[imageWidth][imageHeight];
 
-glm::vec3 getLighting(Ray ray, Scene scene, float maxDepth) {
+glm::vec3 getLighting(Ray ray, Scene scene) {
     glm::vec3 radiance = glm::vec3(0, 0, 0);
 
     // Check for intersection
@@ -23,10 +23,28 @@ glm::vec3 getLighting(Ray ray, Scene scene, float maxDepth) {
 
         // Compute radiance
         for (PointLight *light : scene.lights) {
-            glm::vec3 lightDir = glm::normalize(intersectPoint - light->position);
-            float d = glm::length(light->position - intersectPoint);
-            glm::vec3 li =
-                    light->intensity * intersect.shape->getColour() * std::max(glm::dot(normal, -lightDir), 0.0f);
+
+            glm::vec3 lightDirection, lightIntensity;
+            light->illuminate(intersectPoint, lightDirection, lightIntensity, intersect.t);
+
+            // Cast a ray to the light
+            Ray shadowRay;
+            shadowRay.origin = intersectPoint + normal;
+            shadowRay.direction = -lightDirection;
+            Intersection shadowIntersect = scene.intersect(shadowRay);
+
+//            std::cout << lightIntensity.x << std::endl;
+            if (shadowIntersect.hit) {
+//                std::cout << intersect.shape->id << " -> " << shadowIntersect.shape->id << std::endl;
+//                radiance.r = 1.0f;
+//                radiance.g = 1.0f;
+                continue;
+            }
+
+            float a = std::max(glm::dot(normal, -lightDirection), 0.0f);
+            glm::vec3 li = lightIntensity * intersect.shape->getColour() * a;
+//            std::cout << a << std::endl;
+            if (a == 0.0f) radiance.g = 1.0f;
             radiance += li;
         }
     }
@@ -35,17 +53,29 @@ glm::vec3 getLighting(Ray ray, Scene scene, float maxDepth) {
 }
 
 Scene makeScene() {
-    glm::vec3 eyePosition = glm::vec3(0.0f, 20.0f, -250.0f);
+    glm::vec3 eyePosition = glm::vec3(0.0f, 100.0f, -250.0f);
 
     Scene scene = Scene(eyePosition);
 
-    scene.shapes.push_back(new Sphere(glm::vec3(-120.0f, -50.0f, 0.0f), 40.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(120.0f, 0.0f, 0.0f), 50.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(0.0f, -100.0f, 0.0f), 30.0f));
-    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), glm::normalize(glm::vec3(0.0f, -1.0f, 0.0f)), 50.0f, 50.0f));
+    // Scene A
+    scene.shapes.push_back(new Sphere(glm::vec3(-120.0f, -50.0f, 0.0f), 40.0f, 0));
+    scene.shapes.push_back(new Sphere(glm::vec3(120.0f, 0.0f, 0.0f), 50.0f, 1));
+    scene.shapes.push_back(new Sphere(glm::vec3(0.0f, -80.0f, -35.0f), 25.0f, 2));
 
-    scene.lights.push_back(new PointLight(glm::vec3(0.0f, -25.0f, 0.0f), glm::vec3(10.0f, 10.0f, 10.0f)));
-    scene.shapes.push_back(new Sphere(glm::vec3(0.0f, -25.0f, 0.0f), 5.0f));
+    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 0.0f, 0.0f), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)), 3));
+
+    scene.lights.push_back(new PointLight(glm::vec3(-15.0f, -100.0f, -50.0f), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f)));
+//    scene.shapes.push_back(new Sphere(glm::vec3(-20.0f, -100.0f, -50.0f), 5.0f, 4));
+
+    // Scene B
+//    scene.shapes.push_back(new Sphere(glm::vec3(0.0f, 0.0f, 0.0f), 25.0f, 2));
+//    scene.lights.push_back(new PointLight(glm::vec3(0.0f, -100.0f, 0.0f), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f)));
+
+    // Scene C
+//    scene.lights.push_back(new PointLight(glm::vec3(-50.0f, 0.0f, 0.0f), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f)));
+//    scene.shapes.push_back(new Sphere(glm::vec3(-50.0f, 0.0f, -100.0f), 5.0f, 4));
+//    scene.shapes.push_back(new Sphere(glm::vec3(0.0f, 0.0f, 0.0f), 20.0f, 0));
+//    scene.shapes.push_back(new Sphere(glm::vec3(50.0f, 0.0f, 0.0f), 50.0f, 1));
 
     return scene;
 }
@@ -58,7 +88,6 @@ int main() {
 
     // Setup image buffer
     glm::vec2 pixelScale = glm::vec2(512.0f / (float) imageWidth, 512.0f / (float) imageHeight);
-    float maxDepth = 500.0f;
 
     // Begin progress bar
     int totalSamples = imageWidth * imageHeight;
@@ -70,12 +99,13 @@ int main() {
     for (int x = 0; x < imageWidth; x++) {
         for (int y = 0; y < imageHeight; y++) {
             glm::vec2 pixelPosition = glm::vec2(x - imageWidth / 2, y - imageWidth / 2) * pixelScale;
+            pixelPosition += glm::vec2(scene.cameraPosition.x, scene.cameraPosition.y);
 
             Ray ray;
             ray.origin = scene.cameraPosition;
             ray.direction = glm::normalize(scene.cameraPosition - glm::vec3(pixelPosition, 0.0f));
 
-            image[x][y] = getLighting(ray, scene, maxDepth);
+            image[x][y] = getLighting(ray, scene);
 
             float percent = ((x * y) + y) / (float) totalSamples;
             if (percent > lastPercent + percentSpace) {
