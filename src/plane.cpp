@@ -23,7 +23,7 @@ bool Plane::intersect(Ray ray, float &t) {
     return t >= 0.0001f;
 }
 
-glm::vec3 Plane::getNormal(Ray ray) {
+glm::vec3 Plane::getNormal(glm::vec3 point) {
     return normal;
 }
 

@@ -10,11 +10,6 @@
 struct Ray {
     glm::vec3 origin;
     glm::vec3 direction;
-    float time;
-
-    glm::vec3 getPosition() {
-        return origin + direction * time;
-    }
 };
 
 #endif //RAYWHITTER_PRIMATIVES_HPP

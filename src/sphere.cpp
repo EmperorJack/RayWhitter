@@ -54,8 +54,8 @@ bool Sphere::intersect(Ray ray, float &t) {
     return false;
 }
 
-glm::vec3 Sphere::getNormal(Ray ray) {
-    return glm::normalize(ray.getPosition() - position);
+glm::vec3 Sphere::getNormal(glm::vec3 point) {
+    return glm::normalize(position - point);
 }
 
 glm::vec3 Sphere::getColour() {

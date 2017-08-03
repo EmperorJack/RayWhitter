@@ -12,7 +12,7 @@ class PointLight {
 public:
     PointLight(glm::vec3 position, glm::vec3 intensity);
 
-private:
+//private:
     glm::vec3 position;
     glm::vec3 intensity;
 };

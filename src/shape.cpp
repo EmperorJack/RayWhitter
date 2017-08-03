@@ -8,7 +8,7 @@ bool Shape::intersect(Ray ray, float &t) {
     return true;
 }
 
-glm::vec3 Shape::getNormal(Ray ray) {
+glm::vec3 Shape::getNormal(glm::vec3 point) {
     return glm::vec3();
 }
 
