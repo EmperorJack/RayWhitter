@@ -7,6 +7,8 @@
 
 #include <glm/glm.hpp>
 
+const float infinity = 10000000000.0f;
+
 struct Ray {
     glm::vec3 origin;
     glm::vec3 direction;

@@ -13,7 +13,7 @@ Sphere::Sphere(glm::vec3 position, float radius, int id) {
 }
 
 bool Sphere::intersect(Ray ray, float &t) {
-    glm::vec3 l = position - ray.origin;
+    glm::vec3 l = ray.origin - position;
     float a = glm::dot(ray.direction, ray.direction);
     float b = 2.0f * glm::dot(ray.direction, l);
     float c = glm::dot(l, l) - (radius * radius);

@@ -5,8 +5,7 @@
 #ifndef RAYWHITTER_INTERSECTION_HPP
 #define RAYWHITTER_INTERSECTION_HPP
 
-#include <plane.hpp>
-#include <sphere.hpp>
+#include <shape.hpp>
 
 class Intersection {
 
