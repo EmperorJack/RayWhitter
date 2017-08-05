@@ -6,7 +6,7 @@
 #define RAYWHITTER_SHAPE_HPP
 
 #include <glm/glm.hpp>
-#include <primatives.hpp>
+#include <ray.hpp>
 
 class Shape {
 

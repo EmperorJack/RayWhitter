@@ -5,7 +5,7 @@
 #ifndef RAYWHITTER_PLANE_HPP
 #define RAYWHITTER_PLANE_HPP
 
-#include <primatives.hpp>
+#include <ray.hpp>
 #include <shape.hpp>
 
 class Plane : public Shape {

@@ -5,7 +5,7 @@
 #ifndef RAYWHITTER_SPHERE_HPP
 #define RAYWHITTER_SPHERE_HPP
 
-#include <primatives.hpp>
+#include <ray.hpp>
 #include <shape.hpp>
 
 class Sphere : public Shape {
