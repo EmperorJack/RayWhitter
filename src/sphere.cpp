@@ -6,13 +6,7 @@
 #include <algorithm>
 #include <iostream>
 
-//Sphere::Sphere(glm::vec3 position, glm::vec3 albedo, Material material, float radius) {
-//    this->position = position;
-//    this->radius = radius;
-//    this->id = id;
-//}
-
-bool Sphere::intersect(Ray ray, float &t) {
+bool Sphere::intersect(Ray ray, float &t, glm::vec3 &n) {
     glm::vec3 l = ray.origin - position;
     float a = glm::dot(ray.direction, ray.direction);
     float b = 2.0f * glm::dot(ray.direction, l);
@@ -31,33 +25,22 @@ bool Sphere::intersect(Ray ray, float &t) {
         float t0 = (-b + sqrtf(det)) / (2 * a);
         float t1 = (-b - sqrtf(det)) / (2 * a);
 
-        if (t0 < 0.0f && t1 < 0.0f) {
-//            std::cout << "both behind" << std::endl;
-            return false;
-        }
-        if (t0 < 0.0f && t1 > 0.0f) {
-//            std::cout << "one in front" << std::endl;
-            t = t1;
-            return true;
-        }
-        if (t1 < 0.0f && t0 > 0.0f) {
-//            std::cout << "one in front" << std::endl;
-            t = t0;
-            return true;
-        }
+        // Both behind
+        if (t0 < 0.0f && t1 < 0.0f) return false;
 
-//        std::cout << "two in front" << std::endl;
-        t = std::min(t0, t1);
+        // One in front
+        else if (t0 < 0.0f && t1 > 0.0f) t = t1;
+
+        // Other one in front
+        else if (t1 < 0.0f && t0 > 0.0f) t = t0;
+
+        // Two in front
+        else t = std::min(t0, t1);
+
+        n = glm::normalize(ray.position(t) - position);
+
         return true;
     }
 
     return false;
-}
-
-glm::vec3 Sphere::getNormal(glm::vec3 point) {
-    return glm::normalize(point - position);
-}
-
-glm::vec3 Sphere::getColour() {
-    return glm::vec3(0.0f, 0.0f, 1.0f);
 }

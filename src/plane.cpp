@@ -4,7 +4,7 @@
 
 #include <plane.hpp>
 
-bool Plane::intersect(Ray ray, float &t) {
+bool Plane::intersect(Ray ray, float &t, glm::vec3 &n) {
     float num = glm::dot(position - ray.origin, normal);
     float denom = glm::dot(normal, ray.direction);
 
@@ -13,13 +13,10 @@ bool Plane::intersect(Ray ray, float &t) {
 
     t = num / denom;
 
-    return t >= 0.0001f;
-}
+    if (t >= 0.0001f) {
+        n = normal;
+        return true;
+    }
 
-glm::vec3 Plane::getNormal(glm::vec3 point) {
-    return normal;
-}
-
-glm::vec3 Plane::getColour() {
-    return glm::vec3(1.0f, 0.0f, 0.0f);
+    return false;
 }

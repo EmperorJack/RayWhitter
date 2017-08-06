@@ -3,3 +3,7 @@
 //
 
 #include <ray.hpp>
+
+glm::vec3 Ray::position(float t) {
+    return origin + t * direction;
+}

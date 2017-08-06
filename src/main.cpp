@@ -17,10 +17,7 @@ glm::vec3 getLighting(Ray ray, Scene scene) {
 
     if (intersect.hit) {
 
-        glm::vec3 intersectPoint = ray.origin + ray.direction * intersect.t;
-
-        // Get intersection normal
-        glm::vec3 normal = intersect.shape->getNormal(intersectPoint);
+        glm::vec3 intersectPoint = ray.position(intersect.t);
 
         // Compute radiance
         for (PointLight *light : scene.lights) {
@@ -29,7 +26,7 @@ glm::vec3 getLighting(Ray ray, Scene scene) {
             float lightDistance;
             light->illuminate(intersectPoint, lightDirection, lightIntensity, lightDistance);
 
-            float a = std::max(glm::dot(normal, -lightDirection), 0.0f);
+            float a = std::max(glm::dot(intersect.normal, -lightDirection), 0.0f);
             if (a <= 0.0f) continue;
 
             // Cast a shadow ray to the light
@@ -41,7 +38,7 @@ glm::vec3 getLighting(Ray ray, Scene scene) {
             // Check if the light is shadowed
             if (shadowIntersect.hit && shadowIntersect.t < lightDistance) continue;
 
-            glm::vec3 li = lightIntensity * intersect.shape->getColour() * a;
+            glm::vec3 li = lightIntensity * intersect.shape->albedo * a;
             radiance += li;
         }
     }
@@ -56,13 +53,13 @@ Scene makeScene() {
 
     Matte matte = Matte(0.8f);
 
-    scene.shapes.push_back(new Plane(glm::vec3(0.0f, -25.0f, 0.0f), glm::vec3(1, 0, 0), matte, glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f))));
+    scene.shapes.push_back(new Plane(glm::vec3(0.0f, -25.0f, 0.0f), glm::vec3(1, 1, 1), matte, glm::normalize(glm::vec3(0, 1, 0))));
 
-    scene.shapes.push_back(new Sphere(glm::vec3(20.0f, 0.0f, -50.0f), glm::vec3(0, 0, 1), matte, 8.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(-20.0f, 0.0f, -70.0f), glm::vec3(0, 0, 1), matte, 20.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(20.0f, 0.0f, -50.0f), glm::vec3(1, 0, 0), matte, 8.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(-20.0f, 0.0f, -70.0f), glm::vec3(0, 1, 0), matte, 20.0f));
     scene.shapes.push_back(new Sphere(glm::vec3(-5.0f, 15.0f, -40.0f), glm::vec3(0, 0, 1), matte, 4.0f));
 
-    scene.lights.push_back(new PointLight(glm::vec3(0.0f, 50.0f, 0.0f), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f)));
+    scene.lights.push_back(new PointLight(glm::vec3(0.0f, 50.0f, 0.0f), 1.0f, glm::vec3(1, 1, 1)));
 
     return scene;
 }

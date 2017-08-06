@@ -10,6 +10,8 @@
 class Ray {
 
 public:
+    glm::vec3 position(float t);
+
     glm::vec3 origin;
     glm::vec3 direction;
 

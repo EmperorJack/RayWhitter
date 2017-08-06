@@ -13,6 +13,7 @@ public:
     bool hit;
     float t;
     Shape* shape;
+    glm::vec3 normal;
 
 };
 

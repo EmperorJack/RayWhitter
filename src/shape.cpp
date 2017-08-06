@@ -4,14 +4,6 @@
 
 #include <shape.hpp>
 
-bool Shape::intersect(Ray ray, float &t) {
+bool Shape::intersect(Ray ray, float &t, glm::vec3 &n) {
     return true;
-}
-
-glm::vec3 Shape::getNormal(glm::vec3 point) {
-    return glm::vec3();
-}
-
-glm::vec3 Shape::getColour() {
-    return glm::vec3(0, 0, 0);
 }

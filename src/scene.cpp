@@ -12,10 +12,12 @@ Intersection Scene::intersect(Ray ray) {
 
     for (Shape* shape : shapes) {
         float t = infinity;
-        if (shape->intersect(ray, t) && t < intersection.t) {
+        glm::vec3 normal;
+        if (shape->intersect(ray, t, normal) && t < intersection.t) {
             intersection.hit = true;
             intersection.t = t;
             intersection.shape = shape;
+            intersection.normal = normal;
         }
     }
 
