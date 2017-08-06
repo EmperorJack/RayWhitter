@@ -3,7 +3,10 @@
 #include <glm/glm.hpp>
 #include <jpge.h>
 #include <scene.hpp>
+#include <plane.hpp>
+#include <sphere.hpp>
 #include <matte.hpp>
+#include <phong.hpp>
 
 const int imageWidth = 512;
 const int imageHeight = 512;
@@ -38,8 +41,7 @@ glm::vec3 getLighting(Ray ray, Scene scene) {
             // Check if the light is shadowed
             if (shadowIntersect.hit && shadowIntersect.t < lightDistance) continue;
 
-            glm::vec3 li = lightIntensity * intersect.shape->albedo * a;
-            radiance += li;
+            radiance += intersect.shape->material->evaluate(ray, intersect, lightDirection, lightIntensity, a);
         }
     }
 
@@ -51,13 +53,14 @@ Scene makeScene() {
 
     Scene scene = Scene(cameraPosition);
 
-    Matte matte = Matte(0.8f);
+    Matte* matte = new Matte(1.0f);
+    Phong* phong = new Phong(0.8f, 0.2f, 10);
 
     scene.shapes.push_back(new Plane(glm::vec3(0.0f, -25.0f, 0.0f), glm::vec3(1, 1, 1), matte, glm::normalize(glm::vec3(0, 1, 0))));
 
-    scene.shapes.push_back(new Sphere(glm::vec3(20.0f, 0.0f, -50.0f), glm::vec3(1, 0, 0), matte, 8.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(-20.0f, 0.0f, -70.0f), glm::vec3(0, 1, 0), matte, 20.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(-5.0f, 15.0f, -40.0f), glm::vec3(0, 0, 1), matte, 4.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(20.0f, 0.0f, -50.0f), glm::vec3(1, 0, 0), phong, 8.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(-20.0f, 0.0f, -70.0f), glm::vec3(0, 1, 0), phong, 20.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(-5.0f, 15.0f, -40.0f), glm::vec3(0, 0, 1), phong, 4.0f));
 
     scene.lights.push_back(new PointLight(glm::vec3(0.0f, 50.0f, 0.0f), 1.0f, glm::vec3(1, 1, 1)));
 
@@ -91,7 +94,7 @@ int main() {
             ray.origin = scene.cameraPosition;
             ray.direction = glm::normalize(glm::vec3(pixelCamera.x, pixelCamera.y, -1.0f) - scene.cameraPosition);
 
-            image[x][y] = getLighting(ray, scene);
+            image[x][y] = glm::clamp(getLighting(ray, scene), 0.0f, 1.0f);
 
             float percent = ((x * y) + y) / (float) totalSamples;
             if (percent > lastPercent + percentSpace) {

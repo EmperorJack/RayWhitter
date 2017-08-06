@@ -6,11 +6,12 @@
 #define RAYWHITTER_MATERIAL_HPP
 
 #include <glm/glm.hpp>
+#include <intersection.hpp>
 
 class Material {
 
 public:
-    virtual glm::vec3 getBSDF();
+    virtual glm::vec3 evaluate(Ray ray, Intersection intersect, glm::vec3 lightDirection, glm::vec3 lightIntensity, float a);
 
 };
 

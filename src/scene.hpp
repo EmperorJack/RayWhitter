@@ -8,8 +8,6 @@
 #include <vector>
 #include <ray.hpp>
 #include <intersection.hpp>
-#include <plane.hpp>
-#include <sphere.hpp>
 #include <point_light.hpp>
 
 const float infinity = 10000000000.0f;

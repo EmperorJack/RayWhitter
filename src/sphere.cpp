@@ -2,9 +2,9 @@
 // Created by purvisjack on 1/08/17.
 //
 
-#include <sphere.hpp>
-#include <algorithm>
 #include <iostream>
+#include <algorithm>
+#include <sphere.hpp>
 
 bool Sphere::intersect(Ray ray, float &t, glm::vec3 &n) {
     glm::vec3 l = ray.origin - position;
