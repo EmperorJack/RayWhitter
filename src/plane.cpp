@@ -4,12 +4,6 @@
 
 #include <plane.hpp>
 
-Plane::Plane(glm::vec3 position, glm::vec3 normal, int id) {
-    this->position = position;
-    this->normal = normal;
-    this->id = id;
-}
-
 bool Plane::intersect(Ray ray, float &t) {
     float num = glm::dot(position - ray.origin, normal);
     float denom = glm::dot(normal, ray.direction);

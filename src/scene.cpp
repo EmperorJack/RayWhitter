@@ -4,10 +4,6 @@
 
 #include <scene.hpp>
 
-Scene::Scene(glm::vec3 cameraPosition) {
-    this->cameraPosition = cameraPosition;
-}
-
 Intersection Scene::intersect(Ray ray) {
     Intersection intersection;
     intersection.hit = false;

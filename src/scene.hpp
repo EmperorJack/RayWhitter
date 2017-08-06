@@ -17,7 +17,7 @@ const float infinity = 10000000000.0f;
 class Scene {
 
 public:
-    Scene(glm::vec3 cameraPosition);
+    Scene(glm::vec3 cameraPosition) : cameraPosition(cameraPosition) {}
     Intersection intersect(Ray ray);
 
     glm::vec3 cameraPosition;

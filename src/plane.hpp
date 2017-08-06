@@ -11,13 +11,13 @@
 class Plane : public Shape {
 
 public:
-    Plane(glm::vec3 position, glm::vec3 normal, int id);
+    Plane(glm::vec3 position, glm::vec3 albedo, Material material, glm::vec3 normal):
+            Shape(position, albedo, material), normal(normal) {}
     bool intersect(Ray ray, float &t);
     glm::vec3 getNormal(glm::vec3 point);
     glm::vec3 getColour();
 
 private:
-    glm::vec3 position;
     glm::vec3 normal;
 
 };

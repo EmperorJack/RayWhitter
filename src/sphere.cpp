@@ -6,11 +6,11 @@
 #include <algorithm>
 #include <iostream>
 
-Sphere::Sphere(glm::vec3 position, float radius, int id) {
-    this->position = position;
-    this->radius = radius;
-    this->id = id;
-}
+//Sphere::Sphere(glm::vec3 position, glm::vec3 albedo, Material material, float radius) {
+//    this->position = position;
+//    this->radius = radius;
+//    this->id = id;
+//}
 
 bool Sphere::intersect(Ray ray, float &t) {
     glm::vec3 l = ray.origin - position;

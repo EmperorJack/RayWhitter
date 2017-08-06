@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <jpge.h>
 #include <scene.hpp>
+#include <matte.hpp>
 
 const int imageWidth = 512;
 const int imageHeight = 512;
@@ -53,11 +54,13 @@ Scene makeScene() {
 
     Scene scene = Scene(cameraPosition);
 
-    scene.shapes.push_back(new Plane(glm::vec3(0.0f, -25.0f, 0.0f), glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)), 0));
+    Matte matte = Matte(0.8f);
 
-    scene.shapes.push_back(new Sphere(glm::vec3(20.0f, 0.0f, -50.0f), 8.0f, 1));
-    scene.shapes.push_back(new Sphere(glm::vec3(-20.0f, 0.0f, -70.0f), 20.0f, 3));
-    scene.shapes.push_back(new Sphere(glm::vec3(-5.0f, 15.0f, -40.0f), 4.0f, 3));
+    scene.shapes.push_back(new Plane(glm::vec3(0.0f, -25.0f, 0.0f), glm::vec3(1, 0, 0), matte, glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f))));
+
+    scene.shapes.push_back(new Sphere(glm::vec3(20.0f, 0.0f, -50.0f), glm::vec3(0, 0, 1), matte, 8.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(-20.0f, 0.0f, -70.0f), glm::vec3(0, 0, 1), matte, 20.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(-5.0f, 15.0f, -40.0f), glm::vec3(0, 0, 1), matte, 4.0f));
 
     scene.lights.push_back(new PointLight(glm::vec3(0.0f, 50.0f, 0.0f), 1.0f, glm::vec3(1.0f, 1.0f, 1.0f)));
 
