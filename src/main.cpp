@@ -1,12 +1,16 @@
+//
+// Created by Jack Purvis
+//
+
 #include <iostream>
 #include <vector>
 #include <glm/glm.hpp>
 #include <jpge.h>
-#include <scene.hpp>
-#include <plane.hpp>
-#include <sphere.hpp>
-#include <matte.hpp>
-#include <phong.hpp>
+#include <core/scene.hpp>
+#include <shapes/plane.hpp>
+#include <shapes/sphere.hpp>
+#include <materials/matte.hpp>
+#include <materials/phong.hpp>
 
 const int imageWidth = 1920;
 const int imageHeight = 1080;
