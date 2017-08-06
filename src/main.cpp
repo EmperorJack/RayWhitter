@@ -13,7 +13,8 @@ const int imageHeight = 1080;
 glm::vec3 image[imageWidth][imageHeight];
 uint8_t data[imageHeight][imageWidth * 3];
 const int maxBounces = 10;
-glm::vec3 backgroundColour = glm::vec3();
+glm::vec3 backgroundColour = glm::vec3(0.8f);
+glm::vec3 shadowColour = glm::vec3(0.0f);
 
 glm::vec3 castRay(Ray ray, Scene scene) {
     glm::vec3 radiance = glm::vec3(0, 0, 0);
@@ -25,7 +26,7 @@ glm::vec3 castRay(Ray ray, Scene scene) {
 
         glm::vec3 intersectPoint = ray.position(intersect.t);
 
-        // Compute radiance
+        // Compute lighting contribution from each light
         for (PointLight *light : scene.lights) {
 
             glm::vec3 lightDirection, lightIntensity;
@@ -42,16 +43,19 @@ glm::vec3 castRay(Ray ray, Scene scene) {
             Intersection shadowIntersect = scene.intersect(shadowRay);
 
             // Check if the light is shadowed
-            if (shadowIntersect.hit && shadowIntersect.t < lightDistance) continue;
+            bool visible = !(shadowIntersect.hit && shadowIntersect.t < lightDistance);
 
-            radiance += intersect.shape->material->evaluate(ray, intersect, lightDirection, lightIntensity, a);
+            radiance += intersect.shape->material->evaluate(ray, intersect, lightDirection, lightIntensity, a) * (visible ? glm::vec3(1) : shadowColour);
         }
 
+        // Cast reflection ray if needed
         if (ray.depth < maxBounces && intersect.shape->material->kr > 0.0f) {
             glm::vec3 reflect = glm::reflect(ray.direction, intersect.normal);
+
             Ray reflectRay = Ray(ray.depth + 1);
             reflectRay.direction = reflect;
             reflectRay.origin = intersectPoint + 1.0f * reflectRay.direction;
+
             radiance += intersect.shape->material->kr * castRay(reflectRay, scene);
         }
     } else {
@@ -68,16 +72,16 @@ Scene makeScene() {
 
     Matte* matte = new Matte(0.0f, 1.0f);
     Phong* phong = new Phong(0.0f, 0.8f, 0.2f, 12);
-    Phong* mirror = new Phong(0.5f, 0.5f, 0.0f, 8);
-    Phong* mirror2 = new Phong(0.6f, 0.0f, 0.4f, 8);
+    Phong* mirror = new Phong(0.6f, 0.0f, 0.4f, 8);
+    Matte* mirrorGround = new Matte(0.3f, 0.7f);
 
-    scene.shapes.push_back(new Plane(glm::vec3(0.0f, -25.0f, 0.0f), glm::vec3(1, 1, 1), mirror, glm::normalize(glm::vec3(0, 1, 0))));
+    scene.shapes.push_back(new Plane(glm::vec3(0.0f, -25.0f, 0.0f), glm::vec3(1, 1, 1), mirrorGround, glm::normalize(glm::vec3(0, 1, 0))));
 
     scene.shapes.push_back(new Sphere(glm::vec3(30.0f, 0.0f, -60.0f), glm::vec3(1, 0, 0), phong, 12.0f));
     scene.shapes.push_back(new Sphere(glm::vec3(-40.0f, 0.0f, -70.0f), glm::vec3(0, 1, 0), phong, 20.0f));
     scene.shapes.push_back(new Sphere(glm::vec3(-25.0f, 15.0f, -40.0f), glm::vec3(0, 0, 1), phong, 4.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(0.0f, 10.0f, -70.0f), glm::vec3(1, 1, 1), mirror2, 14.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(20.0f, 40.0f, -70.0f), glm::vec3(1, 1, 0), phong, 10.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(0.0f, 10.0f, -70.0f), glm::vec3(1, 1, 1), mirror, 14.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(20.0f, 30.0f, -70.0f), glm::vec3(1, 1, 0), matte, 8.0f));
     scene.shapes.push_back(new Sphere(glm::vec3(0.0f, 10.0f, 70.0f), glm::vec3(1, 0, 1), phong, 16.0f));
 
     scene.lights.push_back(new PointLight(glm::vec3(0.0f, 50.0f, 10.0f), 80000.0f, glm::vec3(1, 1, 1)));
