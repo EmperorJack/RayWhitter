@@ -8,9 +8,10 @@
 #include <matte.hpp>
 #include <phong.hpp>
 
-const int imageWidth = 512;
-const int imageHeight = 512;
+const int imageWidth = 1920;
+const int imageHeight = 1080;
 glm::vec3 image[imageWidth][imageHeight];
+uint8_t data[imageHeight][imageWidth * 3];
 const int maxDepth = 1;
 
 glm::vec3 getLighting(Ray ray, Scene scene) {
@@ -68,7 +69,7 @@ Scene makeScene() {
     scene.shapes.push_back(new Sphere(glm::vec3(-20.0f, 0.0f, -70.0f), glm::vec3(0, 1, 0), phong, 20.0f));
     scene.shapes.push_back(new Sphere(glm::vec3(-5.0f, 15.0f, -40.0f), glm::vec3(0, 0, 1), phong, 4.0f));
 
-    scene.lights.push_back(new PointLight(glm::vec3(0.0f, 50.0f, 0.0f), 80000.0f, glm::vec3(1, 1, 1)));
+    scene.lights.push_back(new PointLight(glm::vec3(0.0f, 50.0f, 20.0f), 80000.0f, glm::vec3(1, 1, 1)));
 
     return scene;
 }
@@ -113,21 +114,16 @@ int main() {
     // End progress bar
     std::cout << "[" << 100 << "%" << "]" << std::endl;
 
-    uint8_t data[imageHeight][imageWidth * 3];
+    std::cout << "Writing image file...";
 
     // Output image file
     for (int y = 0; y < imageHeight; y++) {
         for (int x = 0; x < imageWidth; x++) {
-            //float val = image[x][y].x;
-            //std::cout << (val > 0.0f ? "11" : "00");
-            data[y][x * 3] = (uint8_t) (image[x][y].x * 255.0f);
-            data[y][x * 3 + 1] = (uint8_t) (image[x][y].y * 255.0f);
-            data[y][x * 3 + 2] = (uint8_t) (image[x][y].z * 255.0f);
+            data[y][x * 3] = (uint8_t) (image[x][y].r * 255.0f);
+            data[y][x * 3 + 1] = (uint8_t) (image[x][y].g * 255.0f);
+            data[y][x * 3 + 2] = (uint8_t) (image[x][y].b * 255.0f);
         }
-        //std::cout << std::endl;
     }
-
-    std::cout << "Writing image file...";
 
     // Writes JPEG image to a file.
     // num_channels must be 1 (Y), 3 (RGB), or 4 (RGBA), image pitch must be width*num_channels.
