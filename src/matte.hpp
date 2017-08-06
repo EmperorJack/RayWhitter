@@ -10,8 +10,8 @@
 class Matte : public Material {
 
 public:
-    Matte(float kd) :
-            kd(kd) {}
+    Matte(float kr, float kd) :
+            Material(kr), kd(kd) {}
     glm::vec3 evaluate(Ray ray, Intersection intersect, glm::vec3 lightDirection, glm::vec3 lightIntensity, float a);
 
     float kd;

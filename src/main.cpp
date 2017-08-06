@@ -11,6 +11,7 @@
 const int imageWidth = 512;
 const int imageHeight = 512;
 glm::vec3 image[imageWidth][imageHeight];
+const int maxDepth = 1;
 
 glm::vec3 getLighting(Ray ray, Scene scene) {
     glm::vec3 radiance = glm::vec3(0, 0, 0);
@@ -33,7 +34,7 @@ glm::vec3 getLighting(Ray ray, Scene scene) {
             if (a <= 0.0f) continue;
 
             // Cast a shadow ray to the light
-            Ray shadowRay;
+            Ray shadowRay = Ray(0);
             shadowRay.direction = -lightDirection;
             shadowRay.origin = intersectPoint + 1.0f * shadowRay.direction;
             Intersection shadowIntersect = scene.intersect(shadowRay);
@@ -42,6 +43,10 @@ glm::vec3 getLighting(Ray ray, Scene scene) {
             if (shadowIntersect.hit && shadowIntersect.t < lightDistance) continue;
 
             radiance += intersect.shape->material->evaluate(ray, intersect, lightDirection, lightIntensity, a);
+
+            if (ray.depth < maxDepth && intersect.shape->material->kr > 0.0f) {
+                // Reflection goes here
+            }
         }
     }
 
@@ -53,16 +58,17 @@ Scene makeScene() {
 
     Scene scene = Scene(cameraPosition);
 
-    Matte* matte = new Matte(1.0f);
-    Phong* phong = new Phong(0.8f, 0.2f, 10);
+    Matte* matte = new Matte(0.0f, 1.0f);
+    Phong* phong = new Phong(0.0f, 0.8f, 0.2f, 10);
+    Phong* mirror = new Phong(1.0f, 0.0f, 0.0, 10);
 
-    scene.shapes.push_back(new Plane(glm::vec3(0.0f, -25.0f, 0.0f), glm::vec3(1, 1, 1), matte, glm::normalize(glm::vec3(0, 1, 0))));
+    scene.shapes.push_back(new Plane(glm::vec3(0.0f, -25.0f, -50.0f), glm::vec3(1, 1, 1), matte, glm::normalize(glm::vec3(0, 1, 0))));
 
     scene.shapes.push_back(new Sphere(glm::vec3(20.0f, 0.0f, -50.0f), glm::vec3(1, 0, 0), phong, 8.0f));
     scene.shapes.push_back(new Sphere(glm::vec3(-20.0f, 0.0f, -70.0f), glm::vec3(0, 1, 0), phong, 20.0f));
     scene.shapes.push_back(new Sphere(glm::vec3(-5.0f, 15.0f, -40.0f), glm::vec3(0, 0, 1), phong, 4.0f));
 
-    scene.lights.push_back(new PointLight(glm::vec3(0.0f, 50.0f, 0.0f), 1.0f, glm::vec3(1, 1, 1)));
+    scene.lights.push_back(new PointLight(glm::vec3(0.0f, 50.0f, 0.0f), 80000.0f, glm::vec3(1, 1, 1)));
 
     return scene;
 }
@@ -90,7 +96,7 @@ int main() {
             pixelCamera.x = (2 * ((x + 0.5f) / (float) imageWidth) - 1)  * tanf(fov / 2.0f * (float) M_PI / 180.0f) * aspectRatio;
             pixelCamera.y = (1 - 2 * ((y + 0.5f) / (float) imageHeight)) * tanf(fov / 2.0f * (float) M_PI / 180.0f);
 
-            Ray ray;
+            Ray ray = Ray(0);
             ray.origin = scene.cameraPosition;
             ray.direction = glm::normalize(glm::vec3(pixelCamera.x, pixelCamera.y, -1.0f) - scene.cameraPosition);
 

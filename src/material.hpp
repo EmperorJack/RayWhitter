@@ -11,7 +11,11 @@
 class Material {
 
 public:
+    Material(float kr) :
+            kr(kr) {}
     virtual glm::vec3 evaluate(Ray ray, Intersection intersect, glm::vec3 lightDirection, glm::vec3 lightIntensity, float a);
+
+    float kr;
 
 };
 

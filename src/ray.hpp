@@ -10,10 +10,13 @@
 class Ray {
 
 public:
+    Ray(int depth) :
+        depth(depth) {}
     glm::vec3 position(float t);
 
     glm::vec3 origin;
     glm::vec3 direction;
+    int depth;
 
 };
 
