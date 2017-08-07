@@ -2,7 +2,6 @@
 // Created by Jack Purvis
 //
 
-#include <algorithm>
 #include <materials/reflective.hpp>
 
 glm::vec3 Reflective::evaluateReflection(Renderer* renderer, Scene scene, Ray ray, Intersection intersect) {

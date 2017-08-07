@@ -10,6 +10,7 @@
 #include <materials/matte.hpp>
 #include <materials/phong.hpp>
 #include <materials/reflective.hpp>
+#include <materials/refractive.hpp>
 
 glm::vec3** Renderer::render(const int width, const int height) {
     glm::vec3** image = new glm::vec3*[width];
@@ -85,8 +86,8 @@ glm::vec3 Renderer::castRay(Ray ray, Scene scene) {
             float lightDistance;
             light->illuminate(intersect.point, lightDirection, lightIntensity, lightDistance);
 
-            float a = std::max(glm::dot(intersect.normal, -lightDirection), 0.0f);
-            if (a <= 0.0f) continue;
+            float cosLightDirection = std::max(glm::dot(intersect.normal, -lightDirection), 0.0f);
+            if (cosLightDirection <= 0.0f) continue;
 
             // Cast a shadow ray to the light
             Ray shadowRay = Ray(0);
@@ -97,7 +98,7 @@ glm::vec3 Renderer::castRay(Ray ray, Scene scene) {
             // Check if the light is shadowed
             bool visible = !(shadowIntersect.hit && shadowIntersect.t < lightDistance);
 
-            radiance += intersect.shape->material->evaluate(ray, intersect, lightDirection, lightIntensity, a) * (visible ? glm::vec3(1) : shadowColour);
+            radiance += intersect.shape->material->evaluate(ray, intersect, lightDirection, lightIntensity, cosLightDirection) * (visible ? glm::vec3(1) : shadowColour);
         }
 
         // Cast reflection and refraction rays
@@ -121,6 +122,7 @@ Scene Renderer::makeScene() {
     Phong* phong = new Phong(0.8f, 0.2f, 12);
     Reflective* mirror = new Reflective(0, 0.4f, 8, 0.6f);
     Reflective* mirrorGround = new Reflective(0.7f, 0, 0, 0.3f);
+    Refractive* glass = new Refractive(0, 0.2f, 8, 0, 0.8f, 1.3f);
 
     scene.shapes.push_back(new Plane(glm::vec3(0.0f, -25.0f, 0.0f), glm::vec3(1, 1, 1), mirrorGround, glm::normalize(glm::vec3(0, 1, 0))));
 
@@ -130,6 +132,7 @@ Scene Renderer::makeScene() {
     scene.shapes.push_back(new Sphere(glm::vec3(0.0f, 10.0f, -70.0f), glm::vec3(1, 1, 1), mirror, 14.0f));
     scene.shapes.push_back(new Sphere(glm::vec3(20.0f, 30.0f, -70.0f), glm::vec3(1, 1, 0), matte, 8.0f));
     scene.shapes.push_back(new Sphere(glm::vec3(0.0f, 10.0f, 70.0f), glm::vec3(1, 0, 1), phong, 16.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(15.0f, 10.0f, -40.0f), glm::vec3(1, 1, 1), glass, 8.0f));
 
     scene.lights.push_back(new PointLight(glm::vec3(50.0f, 50.0f, 10.0f), 25000.0f, glm::vec3(0.15f, 1, 1)));
     scene.lights.push_back(new PointLight(glm::vec3(-30.0f, 40.0f, -10.0f), 20000.0f, glm::vec3(1, 1, 0.15f)));
