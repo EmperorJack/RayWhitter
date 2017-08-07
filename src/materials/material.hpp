@@ -6,16 +6,14 @@
 #define RAYWHITTER_MATERIAL_HPP
 
 #include <glm/glm.hpp>
-#include <core/intersection.hpp>
+#include <core/renderer.hpp>
 
 class Material {
 
 public:
-    Material(float kr) :
-            kr(kr) {}
     virtual glm::vec3 evaluate(Ray ray, Intersection intersect, glm::vec3 lightDirection, glm::vec3 lightIntensity, float a);
-
-    float kr;
+    virtual glm::vec3 evaluateReflection(Renderer* renderer, Scene scene, Ray ray, Intersection intersect);
+    virtual glm::vec3 evaluateRefraction(Renderer* renderer, Scene scene, Ray ray, Intersection intersect);
 
 };
 

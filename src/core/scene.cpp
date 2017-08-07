@@ -21,5 +21,7 @@ Intersection Scene::intersect(Ray ray) {
         }
     }
 
+    if (intersection.shape != nullptr) intersection.point = ray.position(intersection.t);
+
     return intersection;
 }

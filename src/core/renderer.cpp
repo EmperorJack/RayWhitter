@@ -9,6 +9,7 @@
 #include <shapes/sphere.hpp>
 #include <materials/matte.hpp>
 #include <materials/phong.hpp>
+#include <materials/reflective.hpp>
 
 glm::vec3** Renderer::render(const int width, const int height) {
     glm::vec3** image = new glm::vec3*[width];
@@ -77,14 +78,12 @@ glm::vec3 Renderer::castRay(Ray ray, Scene scene) {
 
     if (intersect.hit) {
 
-        glm::vec3 intersectPoint = ray.position(intersect.t);
-
         // Compute lighting contribution from each light
         for (PointLight *light : scene.lights) {
 
             glm::vec3 lightDirection, lightIntensity;
             float lightDistance;
-            light->illuminate(intersectPoint, lightDirection, lightIntensity, lightDistance);
+            light->illuminate(intersect.point, lightDirection, lightIntensity, lightDistance);
 
             float a = std::max(glm::dot(intersect.normal, -lightDirection), 0.0f);
             if (a <= 0.0f) continue;
@@ -92,7 +91,7 @@ glm::vec3 Renderer::castRay(Ray ray, Scene scene) {
             // Cast a shadow ray to the light
             Ray shadowRay = Ray(0);
             shadowRay.direction = -lightDirection;
-            shadowRay.origin = intersectPoint + 1.0f * shadowRay.direction;
+            shadowRay.origin = intersect.point + 1.0f * shadowRay.direction;
             Intersection shadowIntersect = scene.intersect(shadowRay);
 
             // Check if the light is shadowed
@@ -101,15 +100,10 @@ glm::vec3 Renderer::castRay(Ray ray, Scene scene) {
             radiance += intersect.shape->material->evaluate(ray, intersect, lightDirection, lightIntensity, a) * (visible ? glm::vec3(1) : shadowColour);
         }
 
-        // Cast reflection ray if needed
-        if (ray.depth < maxBounces && intersect.shape->material->kr > 0.0f) {
-            glm::vec3 reflect = glm::reflect(ray.direction, intersect.normal);
-
-            Ray reflectRay = Ray(ray.depth + 1);
-            reflectRay.direction = reflect;
-            reflectRay.origin = intersectPoint + 1.0f * reflectRay.direction;
-
-            radiance += intersect.shape->material->kr * castRay(reflectRay, scene);
+        // Cast reflection and refraction rays
+        if (ray.depth < maxBounces) {
+            radiance += intersect.shape->material->evaluateReflection(this, scene, ray, intersect);
+            radiance += intersect.shape->material->evaluateRefraction(this, scene, ray, intersect);
         }
     } else {
         radiance = backgroundColour;
@@ -123,10 +117,10 @@ Scene Renderer::makeScene() {
 
     Scene scene = Scene(cameraPosition);
 
-    Matte* matte = new Matte(0.0f, 1.0f);
-    Phong* phong = new Phong(0.0f, 0.8f, 0.2f, 12);
-    Phong* mirror = new Phong(0.6f, 0.0f, 0.4f, 8);
-    Matte* mirrorGround = new Matte(0.3f, 0.7f);
+    Matte* matte = new Matte(1);
+    Phong* phong = new Phong(0.8f, 0.2f, 12);
+    Reflective* mirror = new Reflective(0, 0.4f, 8, 0.6f);
+    Reflective* mirrorGround = new Reflective(0.7f, 0, 0, 0.3f);
 
     scene.shapes.push_back(new Plane(glm::vec3(0.0f, -25.0f, 0.0f), glm::vec3(1, 1, 1), mirrorGround, glm::normalize(glm::vec3(0, 1, 0))));
 

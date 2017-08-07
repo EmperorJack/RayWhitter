@@ -12,9 +12,9 @@ class Renderer {
 
 public:
     glm::vec3** render(int width, int height);
+    glm::vec3 castRay(Ray ray, Scene scene);
 
 private:
-    glm::vec3 castRay(Ray ray, Scene scene);
     Scene makeScene();
 
     glm::vec3 backgroundColour = glm::vec3(0.8f);
