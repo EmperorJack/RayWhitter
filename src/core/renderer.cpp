@@ -120,22 +120,28 @@ Scene Renderer::makeScene() {
 
     Matte* matte = new Matte(1);
     Phong* phong = new Phong(0.8f, 0.2f, 12);
-    Reflective* mirror = new Reflective(0, 0.4f, 8, 0.6f);
+    Reflective* mirror = new Reflective(0, 0.2f, 8, 0.8f);
     Reflective* mirrorGround = new Reflective(0.7f, 0, 0, 0.3f);
-    Refractive* glass = new Refractive(0, 0.2f, 8, 0, 0.8f, 1.3f);
+    Refractive* glass = new Refractive(0, 0, 8, 0, 1, 1.1f);
+    Refractive* refract = new Refractive(0, 0, 0, 0.2f, 0.8f, 1.1f);
 
-    scene.shapes.push_back(new Plane(glm::vec3(0.0f, -25.0f, 0.0f), glm::vec3(1, 1, 1), mirrorGround, glm::normalize(glm::vec3(0, 1, 0))));
+    scene.shapes.push_back(new Plane(glm::vec3(0.0f, -120.0f, 0.0f), glm::vec3(1, 1, 1), mirrorGround, glm::normalize(glm::vec3(0, 1, 0))));
+    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 120.0f, 0.0f), glm::vec3(1, 1, 1), mirrorGround, glm::normalize(glm::vec3(0, -1, 0))));
+    scene.shapes.push_back(new Plane(glm::vec3(200.0f, 0.0f, 0.0f), glm::vec3(1, 0, 0), mirrorGround, glm::normalize(glm::vec3(-1, 0, 0))));
+    scene.shapes.push_back(new Plane(glm::vec3(-200.0f, 0.0f, 0.0f), glm::vec3(0, 1, 0), mirrorGround, glm::normalize(glm::vec3(1, 0, 0))));
+    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 0.0f, -200.0f), glm::vec3(0, 0, 1), mirrorGround, glm::normalize(glm::vec3(0, 0, 1))));
+    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 0.0f, 100.0f), glm::vec3(1, 1, 1), mirrorGround, glm::normalize(glm::vec3(0, 0, -1))));
 
-    scene.shapes.push_back(new Sphere(glm::vec3(30.0f, 0.0f, -60.0f), glm::vec3(1, 0, 0), phong, 12.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(-40.0f, 0.0f, -70.0f), glm::vec3(0, 1, 0), phong, 20.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(30.0f, 0.0f, -70.0f), glm::vec3(1, 0, 0), phong, 12.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(-40.0f, 0.0f, -70.0f), glm::vec3(0, 1, 0), phong, 18.0f));
     scene.shapes.push_back(new Sphere(glm::vec3(-25.0f, 15.0f, -40.0f), glm::vec3(0, 0, 1), phong, 4.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(0.0f, 10.0f, -70.0f), glm::vec3(1, 1, 1), mirror, 14.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(20.0f, 30.0f, -70.0f), glm::vec3(1, 1, 0), matte, 8.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(0.0f, 10.0f, 70.0f), glm::vec3(1, 0, 1), phong, 16.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(15.0f, 10.0f, -40.0f), glm::vec3(1, 1, 1), glass, 8.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(0.0f, 0.0f, -70.0f), glm::vec3(1, 1, 1), mirror, 16.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(20.0f, 35.0f, -90.0f), glm::vec3(1, 1, 0), phong, 10.0f));
+    scene.shapes.push_back(new Sphere(glm::vec3(15.0f, 10.0f, -40.0f), glm::vec3(1, 1, 1), refract, 10.0f));
 
-    scene.lights.push_back(new PointLight(glm::vec3(50.0f, 50.0f, 10.0f), 25000.0f, glm::vec3(0.15f, 1, 1)));
-    scene.lights.push_back(new PointLight(glm::vec3(-30.0f, 40.0f, -10.0f), 20000.0f, glm::vec3(1, 1, 0.15f)));
+    scene.lights.push_back(new PointLight(glm::vec3(50.0f, 50.0f, 10.0f), 50000, glm::vec3(1, 1, 0.25f)));
+    scene.lights.push_back(new PointLight(glm::vec3(-30.0f, 40.0f, 10.0f), 50000, glm::vec3(0.25f, 1, 1)));
+    scene.lights.push_back(new PointLight(glm::vec3(0.0f, 30.0f, -120.0f), 50000, glm::vec3(1, 1, 1)));
 
     return scene;
 }

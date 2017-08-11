@@ -21,7 +21,7 @@ private:
     glm::vec3 shadowColour = glm::vec3(0);
 
     float fov = 90.0f;
-    const int maxBounces = 10;
+    const int maxBounces = 4;
     const bool distributed = false;
 
 };
