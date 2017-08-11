@@ -12,6 +12,10 @@
 #include <materials/reflective.hpp>
 #include <materials/refractive.hpp>
 
+double clamp(double upper, double lower, double x) {
+    return std::min(upper, std::max(x, lower));
+}
+
 glm::vec3** Renderer::render(const int width, const int height) {
     glm::vec3** image = new glm::vec3*[width];
     for (int i = 0; i < width; i++) {
@@ -46,13 +50,13 @@ glm::vec3** Renderer::render(const int width, const int height) {
                     float xOffset = ((rand() % 200) - 100) / 100.0f;
                     float yOffset = ((rand() % 200) - 100) / 100.0f;
                     ray.direction = glm::normalize(glm::vec3(pixelCamera.x + xOffset / 1000.0f, pixelCamera.y - yOffset / 1000.0f, -1.0f) - scene.cameraPosition);
-                    colour += glm::clamp(castRay(ray, scene), 0.0f, 1.0f) * 0.2f;
+                    colour += glm::clamp(castRay(scene, ray), 0.0f, 1.0f) * 0.2f;
                 }
             } else {
                 Ray ray = Ray(0);
                 ray.origin = scene.cameraPosition;
                 ray.direction = glm::normalize(glm::vec3(pixelCamera.x, pixelCamera.y, -1.0f) - scene.cameraPosition);
-                colour = glm::clamp(castRay(ray, scene), 0.0f, 1.0f);
+                colour = glm::clamp(castRay(scene, ray), 0.0f, 1.0f);
             }
 
             image[x][y] = colour;
@@ -71,7 +75,7 @@ glm::vec3** Renderer::render(const int width, const int height) {
     return image;
 }
 
-glm::vec3 Renderer::castRay(Ray ray, Scene scene) {
+glm::vec3 Renderer::castRay(Scene scene, Ray ray) {
     glm::vec3 radiance;
 
     // Check for intersection
@@ -103,8 +107,13 @@ glm::vec3 Renderer::castRay(Ray ray, Scene scene) {
 
         // Cast reflection and refraction rays
         if (ray.depth < maxBounces) {
-            radiance += intersect.shape->material->evaluateReflection(this, scene, ray, intersect);
-            radiance += intersect.shape->material->evaluateRefraction(this, scene, ray, intersect);
+            Material* material = intersect.shape->material;
+
+            float kr, kt;
+            kr = material->kr;
+            kt = material->kt;
+            if (kr > 0.0f) radiance += kr * evaluateReflection(scene, ray, intersect, kr);
+            if (kt > 0.0f) radiance += kt * evaluateRefraction(scene, ray, intersect, kt, material->ior);
         }
     } else {
         radiance = backgroundColour;
@@ -113,17 +122,60 @@ glm::vec3 Renderer::castRay(Ray ray, Scene scene) {
     return radiance;
 }
 
+glm::vec3 Renderer::evaluateReflection(Scene scene, Ray ray, Intersection intersect, float kr) {
+    glm::vec3 reflect = glm::reflect(ray.direction, intersect.normal);
+
+    Ray reflectRay = Ray(ray.depth + 1);
+    reflectRay.direction = reflect;
+    reflectRay.origin = intersect.point + 1.0f * reflectRay.direction;
+
+    return castRay(scene, reflectRay);
+}
+
+glm::vec3 Renderer::evaluateRefraction(Scene scene, Ray ray, Intersection intersect, float kt, float ior) {
+    float cosRayDirection = clamp(-1, 1, glm::dot(ray.direction, intersect.normal));
+
+    float iorLeaving = 1;
+    float iorEntering = ior;
+
+    glm::vec3 normal = glm::vec3(intersect.normal);
+
+    // Entering the medium
+    if (cosRayDirection < 0) {
+        cosRayDirection = -cosRayDirection;
+    }
+
+        // Leaving the medium
+    else {
+        std::swap(iorLeaving, iorEntering);
+        normal = -normal;
+    }
+
+    float iorRatio = iorLeaving / iorEntering;
+
+    float k = 1 - iorRatio * iorRatio * (1 - cosRayDirection * cosRayDirection);
+
+    glm::vec3 refractDirection = k < 0 ? glm::vec3() :
+                                 iorRatio * ray.direction + (iorRatio * cosRayDirection - sqrtf(k)) * normal;
+
+    Ray refractRay = Ray(ray.depth + 1);
+    refractRay.direction = refractDirection;
+    refractRay.origin = intersect.point + 1.0f * refractRay.direction;
+
+    return castRay(scene, refractRay);
+}
+
 Scene Renderer::makeScene() {
     glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 
     Scene scene = Scene(cameraPosition);
 
-    Matte* matte = new Matte(1);
-    Phong* phong = new Phong(0.8f, 0.2f, 12);
-    Reflective* mirror = new Reflective(0, 0.2f, 8, 0.8f);
-    Reflective* mirrorGround = new Reflective(0.7f, 0, 0, 0.3f);
-    Refractive* glass = new Refractive(0, 0, 8, 0, 1, 1.1f);
-    Refractive* refract = new Refractive(0, 0, 0, 0.2f, 0.8f, 1.1f);
+    Material* matte = new Material(1);
+    Material* phong = new Material(0.8f, 0.2f, 12);
+    Material* mirror = new Material(0, 0.2f, 8, 0.8f);
+    Material* mirrorGround = new Material(0.7f, 0, 0, 0.3f);
+    Material* glass = new Material(0, 0, 0, 0, 1, 1.1f);
+    Material* refract = new Material(0, 0, 0, 0.2f, 0.8f, 1.3f);
 
     scene.shapes.push_back(new Plane(glm::vec3(0.0f, -120.0f, 0.0f), glm::vec3(1, 1, 1), mirrorGround, glm::normalize(glm::vec3(0, 1, 0))));
     scene.shapes.push_back(new Plane(glm::vec3(0.0f, 120.0f, 0.0f), glm::vec3(1, 1, 1), mirrorGround, glm::normalize(glm::vec3(0, -1, 0))));
