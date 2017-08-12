@@ -109,6 +109,18 @@ glm::vec3 Renderer::castRay(Scene scene, Ray ray) {
             float kr, kt;
             kr = material->kr;
             kt = material->kt;
+            if (kt > 0.0f) {
+                fresnel(ray, intersect, material->ior, kr);
+
+                // If not total internal reflection
+                if (kr < 1.0f) {
+                    kt = 1.0f - kr;
+                } else {
+                    kr = 1.0f;
+                    kt = 0.0f;
+                }
+            }
+
             if (kr > 0.0f) radiance += kr * evaluateReflection(scene, ray, intersect);
             if (kt > 0.0f) radiance += kt * evaluateRefraction(scene, ray, intersect);
         }
@@ -168,10 +180,37 @@ glm::vec3 Renderer::evaluateRefraction(Scene scene, Ray ray, Intersection inters
                                  iorRatio * ray.direction + (iorRatio * cosRayDirection - sqrtf(k)) * normal;
 
     Ray refractRay = Ray(ray.depth + 1);
-    refractRay.direction = refractDirection;
+    refractRay.direction = glm::normalize(refractDirection);
     refractRay.origin = intersect.point + 1.0f * refractRay.direction;
 
     return castRay(scene, refractRay);
+}
+
+void Renderer::fresnel(Ray ray, Intersection intersect, float ior, float &kr) {
+    float cosRayDirection = clamp(-1, 1, glm::dot(ray.direction, intersect.normal));
+
+    float iorLeaving = 1;
+    float iorEntering = intersect.shape->material->ior;
+
+    if (cosRayDirection > 0) {
+        // Leaving the medium
+        std::swap(iorLeaving, iorEntering);
+    }
+
+    // Get sin of ray angle using Snell's law
+    float sinRayDirection = iorLeaving / iorEntering * sqrtf(std::max(0.0f, 1 - cosRayDirection * cosRayDirection));
+
+    if (sinRayDirection >= 1) {
+        // Total internal reflection
+        kr = 1;
+    } else {
+        float cost = sqrtf(std::max(0.0f, 1 - sinRayDirection * sinRayDirection));
+        cosRayDirection = abs(cosRayDirection);
+
+        float rs = ((iorLeaving * cosRayDirection) - (iorEntering * cost)) / ((iorLeaving * cosRayDirection) + (iorEntering * cost));
+        float rp = ((iorEntering * cosRayDirection) - (iorLeaving * cost)) / ((iorEntering * cosRayDirection) + (iorLeaving * cost));
+        kr = (rs * rs + rp * rp) / 2;
+    }
 }
 
 Scene Renderer::makeScene() {
@@ -183,15 +222,16 @@ Scene Renderer::makeScene() {
     Material* phong = new Material(0.8f, 0.2f, 12);
     Material* mirror = new Material(0, 0.2f, 8, 0.8f);
     Material* mirrorGround = new Material(0.7f, 0, 0, 0.3f);
-    Material* glass = new Material(0, 0, 0, 0, 1, 1.1f);
-    Material* refract = new Material(0, 0, 0, 0.2f, 0.8f, 1.3f);
+    Material* glass = new Material(0, 0, 0, 0, 1, 1.5f);
+    Material* refract = new Material(0, 0, 0, 1.0f, 1.0f, 1.7f);
 
-    scene.shapes.push_back(new Plane(glm::vec3(0.0f, -120.0f, 0.0f), glm::vec3(1, 1, 1), mirrorGround, glm::normalize(glm::vec3(0, 1, 0))));
-    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 120.0f, 0.0f), glm::vec3(1, 1, 1), mirrorGround, glm::normalize(glm::vec3(0, -1, 0))));
-    scene.shapes.push_back(new Plane(glm::vec3(200.0f, 0.0f, 0.0f), glm::vec3(1, 0, 0), mirrorGround, glm::normalize(glm::vec3(-1, 0, 0))));
-    scene.shapes.push_back(new Plane(glm::vec3(-200.0f, 0.0f, 0.0f), glm::vec3(0, 1, 0), mirrorGround, glm::normalize(glm::vec3(1, 0, 0))));
-    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 0.0f, -200.0f), glm::vec3(0, 0, 1), mirrorGround, glm::normalize(glm::vec3(0, 0, 1))));
-    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 0.0f, 100.0f), glm::vec3(1, 1, 1), mirrorGround, glm::normalize(glm::vec3(0, 0, -1))));
+    scene.shapes.push_back(new Plane(glm::vec3(0.0f, -120.0f, 0.0f), glm::vec3(1, 1, 1), matte, glm::normalize(glm::vec3(0, 1, 0))));
+    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 120.0f, 0.0f), glm::vec3(1, 1, 1), matte, glm::normalize(glm::vec3(0, -1, 0))));
+    scene.shapes.push_back(new Plane(glm::vec3(200.0f, 0.0f, 0.0f), glm::vec3(1, 0, 0), matte, glm::normalize(glm::vec3(-1, 0, 0))));
+    scene.shapes.push_back(new Plane(glm::vec3(-200.0f, 0.0f, 0.0f), glm::vec3(0, 1, 0), matte, glm::normalize(glm::vec3(1, 0, 0))));
+    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 0.0f, -200.0f), glm::vec3(0, 0, 1), matte, glm::normalize(glm::vec3(0, 0, 1))));
+    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 0.0f, 100.0f), glm::vec3(1, 1, 1), matte, glm::normalize(glm::vec3(0, 0, -1))));
+    // scene.shapes.push_back(new Plane(glm::vec3(0.0f, -30.0f, 0.0f), glm::vec3(1, 1, 1), glass, glm::normalize(glm::vec3(0, 1, 0))));
 
     scene.shapes.push_back(new Sphere(glm::vec3(30.0f, 0.0f, -70.0f), glm::vec3(1, 0, 0), phong, 12.0f));
     scene.shapes.push_back(new Sphere(glm::vec3(-40.0f, 0.0f, -70.0f), glm::vec3(0, 1, 0), phong, 18.0f));
@@ -203,6 +243,7 @@ Scene Renderer::makeScene() {
     scene.lights.push_back(new PointLight(glm::vec3(50.0f, 50.0f, 10.0f), 50000, glm::vec3(1, 1, 0.25f)));
     scene.lights.push_back(new PointLight(glm::vec3(-30.0f, 40.0f, 10.0f), 50000, glm::vec3(0.25f, 1, 1)));
     scene.lights.push_back(new PointLight(glm::vec3(0.0f, 30.0f, -120.0f), 50000, glm::vec3(1, 1, 1)));
+    // scene.lights.push_back(new PointLight(glm::vec3(0.0f, -80.0f, -120.0f), 50000, glm::vec3(1, 1, 1)));
 
     return scene;
 }
