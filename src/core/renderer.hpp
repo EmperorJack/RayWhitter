@@ -16,8 +16,9 @@ public:
 private:
     Scene makeScene();
     glm::vec3 castRay(Scene scene, Ray ray);
-    glm::vec3 evaluateReflection(Scene scene, Ray ray, Intersection intersect, float kr);
-    glm::vec3 evaluateRefraction(Scene scene, Ray ray, Intersection intersect, float kt, float ior);
+    glm::vec3 evaluatePhong(Ray ray, Intersection intersect, glm::vec3 lightDirection, glm::vec3 lightIntensity, float a);
+    glm::vec3 evaluateReflection(Scene scene, Ray ray, Intersection intersect);
+    glm::vec3 evaluateRefraction(Scene scene, Ray ray, Intersection intersect);
 
     glm::vec3 backgroundColour = glm::vec3(0.8f);
     glm::vec3 shadowColour = glm::vec3(0);

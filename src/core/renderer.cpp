@@ -5,12 +5,9 @@
 #include <iostream>
 #include <random>
 #include <core/renderer.hpp>
+#include <core/material.hpp>
 #include <shapes/plane.hpp>
 #include <shapes/sphere.hpp>
-#include <materials/matte.hpp>
-#include <materials/phong.hpp>
-#include <materials/reflective.hpp>
-#include <materials/refractive.hpp>
 
 double clamp(double upper, double lower, double x) {
     return std::min(upper, std::max(x, lower));
@@ -102,7 +99,7 @@ glm::vec3 Renderer::castRay(Scene scene, Ray ray) {
             // Check if the light is shadowed
             bool visible = !(shadowIntersect.hit && shadowIntersect.t < lightDistance);
 
-            radiance += intersect.shape->material->evaluate(ray, intersect, lightDirection, lightIntensity, cosLightDirection) * (visible ? glm::vec3(1) : shadowColour);
+            radiance += evaluatePhong(ray, intersect, lightDirection, lightIntensity, cosLightDirection) * (visible ? glm::vec3(1) : shadowColour);
         }
 
         // Cast reflection and refraction rays
@@ -112,8 +109,8 @@ glm::vec3 Renderer::castRay(Scene scene, Ray ray) {
             float kr, kt;
             kr = material->kr;
             kt = material->kt;
-            if (kr > 0.0f) radiance += kr * evaluateReflection(scene, ray, intersect, kr);
-            if (kt > 0.0f) radiance += kt * evaluateRefraction(scene, ray, intersect, kt, material->ior);
+            if (kr > 0.0f) radiance += kr * evaluateReflection(scene, ray, intersect);
+            if (kt > 0.0f) radiance += kt * evaluateRefraction(scene, ray, intersect);
         }
     } else {
         radiance = backgroundColour;
@@ -122,7 +119,21 @@ glm::vec3 Renderer::castRay(Scene scene, Ray ray) {
     return radiance;
 }
 
-glm::vec3 Renderer::evaluateReflection(Scene scene, Ray ray, Intersection intersect, float kr) {
+glm::vec3 Renderer::evaluatePhong(Ray ray, Intersection intersect, glm::vec3 lightDirection, glm::vec3 lightIntensity, float a) {
+    Material* material = intersect.shape->material;
+
+    glm::vec3 diffuse = lightIntensity * intersect.shape->albedo * a;
+
+    glm::vec3 specular;
+    if (material->ks > 0.0f) {
+        glm::vec3 reflect = glm::reflect(lightDirection, intersect.normal);
+        glm::vec3 specular = lightIntensity * std::pow(std::max(0.0f, glm::dot(reflect, -ray.direction)), material->n);
+    }
+
+    return diffuse * material->kd + specular * material->ks;
+}
+
+glm::vec3 Renderer::evaluateReflection(Scene scene, Ray ray, Intersection intersect) {
     glm::vec3 reflect = glm::reflect(ray.direction, intersect.normal);
 
     Ray reflectRay = Ray(ray.depth + 1);
@@ -132,21 +143,19 @@ glm::vec3 Renderer::evaluateReflection(Scene scene, Ray ray, Intersection inters
     return castRay(scene, reflectRay);
 }
 
-glm::vec3 Renderer::evaluateRefraction(Scene scene, Ray ray, Intersection intersect, float kt, float ior) {
+glm::vec3 Renderer::evaluateRefraction(Scene scene, Ray ray, Intersection intersect) {
     float cosRayDirection = clamp(-1, 1, glm::dot(ray.direction, intersect.normal));
 
     float iorLeaving = 1;
-    float iorEntering = ior;
+    float iorEntering = intersect.shape->material->ior;
 
     glm::vec3 normal = glm::vec3(intersect.normal);
 
-    // Entering the medium
     if (cosRayDirection < 0) {
+        // Entering the medium
         cosRayDirection = -cosRayDirection;
-    }
-
+    } else {
         // Leaving the medium
-    else {
         std::swap(iorLeaving, iorEntering);
         normal = -normal;
     }
