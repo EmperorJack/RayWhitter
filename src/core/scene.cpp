@@ -2,7 +2,9 @@
 // Created by Jack Purvis
 //
 
+#include <glm/glm.hpp>
 #include <core/scene.hpp>
+#include <core/constants.hpp>
 
 Intersection Scene::intersect(Ray ray) {
     Intersection intersection;

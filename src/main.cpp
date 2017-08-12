@@ -6,6 +6,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <jpge.h>
+#include <core/constants.hpp>
 #include <core/renderer.hpp>
 
 int main() {

@@ -10,8 +10,6 @@
 #include <core/intersection.hpp>
 #include <lights/point_light.hpp>
 
-const float infinity = 10000000000.0f;
-
 class Scene {
 
 public:

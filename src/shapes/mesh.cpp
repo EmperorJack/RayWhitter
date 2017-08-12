@@ -6,24 +6,66 @@
 #include <fstream>
 #include <sstream>
 #include <shapes/mesh.hpp>
-#include <core/material.hpp>
+#include <core/constants.hpp>
 
 bool Mesh::intersect(Ray ray, float &t, glm::vec3 &n) {
     bool hit = false;
-    t = 10000000000.0f;
-    glm::vec3 nNear;
+    t = infinity;
+    int closestIndex;
+    glm::vec2 uv;
 
-    for (Sphere* sphere : spheres) {
-        glm::vec3 sn;
-        float st = 10000000000.0f;
-        if (sphere->intersect(ray, st, sn) && st < t) {
+    for (int triangleIndex = 0; triangleIndex < triangles.size(); triangleIndex++) {
+        float tTri = infinity;
+        float u, v;
+        if (rayTriangleIntersect(ray, tTri, triangleIndex, u, v) && tTri < t) {
             hit = true;
-            t = st;
-            nNear = sn;
+            t = tTri;
+            closestIndex = triangleIndex;
+            uv.x = u;
+            uv.y = v;
         }
     }
 
+    if (hit) {
+        glm::vec3 n0 = normals[triangles[closestIndex].v[0].n];
+        glm::vec3 n1 = normals[triangles[closestIndex].v[1].n];
+        glm::vec3 n2 = normals[triangles[closestIndex].v[2].n];
+
+        n = glm::normalize((1 - uv.x - uv.y) * n0 + uv.x * n1 + uv.y * n2);
+    }
+
     return hit;
+}
+
+bool Mesh::rayTriangleIntersect(Ray ray, float &t, int triangleIndex, float &u, float &v) {
+
+    // Get the triangle properties
+    glm::vec3 v0 = points[triangles[triangleIndex].v[0].p];
+    glm::vec3 v1 = points[triangles[triangleIndex].v[1].p];
+    glm::vec3 v2 = points[triangles[triangleIndex].v[2].p];
+    glm::vec3 n = surfaceNormals[triangleIndex];
+
+    glm::vec3 v0v1 = v1 - v0;
+    glm::vec3 v0v2 = v2 - v0;
+    glm::vec3 pvec = glm::cross(ray.direction, v0v2);
+    float det = glm::dot(v0v1, pvec);
+
+    // Check if ray and triangle are parallel
+    if (fabs(det) < 0.0001f) return false;
+
+    float invDet = 1.0f / det;
+
+    glm::vec3 tvec = ray.origin - v0;
+    u = glm::dot(tvec, pvec) * invDet;
+    if (u < 0 || u > 1) return false;
+
+    glm::vec3 qvec = glm::cross(tvec, v0v1);
+    v = glm::dot(ray.direction, qvec) * invDet;
+    if (v < 0 || u + v > 1) return false;
+
+    t = glm::dot(v0v2, qvec) * invDet;
+
+    return t > 0;
 }
 
 void Mesh::loadOBJFile(std::string filename) {
@@ -66,6 +108,7 @@ void Mesh::loadOBJFile(std::string filename) {
                 // Parse vertex
                 glm::vec3 v;
                 objLine >> v.x >> v.y >> v.z;
+                v = (v * scale) + position;
                 points.push_back(v);
             } else if (mode == "vn") {
                 // Parse vertex normal
@@ -114,12 +157,6 @@ void Mesh::loadOBJFile(std::string filename) {
     }
 
     generateSurfaceNormals();
-
-    // Test spheres for each vertex
-    Material* phong = new Material(0.8f, 0.2f, 12);
-    for (glm::vec3 point : points) {
-        spheres.push_back(new Sphere(position + point * 10.0f, glm::vec3(1, 0, 0), phong, 0.25f));
-    }
 }
 
 void Mesh::generateSurfaceNormals() {
