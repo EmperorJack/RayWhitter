@@ -8,6 +8,7 @@
 #include <core/material.hpp>
 #include <shapes/plane.hpp>
 #include <shapes/sphere.hpp>
+#include <shapes/mesh.hpp>
 
 double clamp(double upper, double lower, double x) {
     return std::min(upper, std::max(x, lower));
@@ -225,21 +226,27 @@ Scene Renderer::makeScene() {
     Material* glass = new Material(0, 0, 0, 0, 1, 1.5f);
     Material* refract = new Material(0, 0, 0, 1.0f, 1.0f, 1.7f);
 
-    scene.shapes.push_back(new Plane(glm::vec3(0.0f, -120.0f, 0.0f), glm::vec3(1, 1, 1), matte, glm::normalize(glm::vec3(0, 1, 0))));
-    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 120.0f, 0.0f), glm::vec3(1, 1, 1), matte, glm::normalize(glm::vec3(0, -1, 0))));
-    scene.shapes.push_back(new Plane(glm::vec3(200.0f, 0.0f, 0.0f), glm::vec3(1, 0, 0), matte, glm::normalize(glm::vec3(-1, 0, 0))));
-    scene.shapes.push_back(new Plane(glm::vec3(-200.0f, 0.0f, 0.0f), glm::vec3(0, 1, 0), matte, glm::normalize(glm::vec3(1, 0, 0))));
-    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 0.0f, -200.0f), glm::vec3(0, 0, 1), matte, glm::normalize(glm::vec3(0, 0, 1))));
-    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 0.0f, 100.0f), glm::vec3(1, 1, 1), matte, glm::normalize(glm::vec3(0, 0, -1))));
+    // Room
+    // scene.shapes.push_back(new Plane(glm::vec3(0.0f, -120.0f, 0.0f), glm::vec3(1, 1, 1), matte, glm::normalize(glm::vec3(0, 1, 0))));
+    // scene.shapes.push_back(new Plane(glm::vec3(0.0f, 120.0f, 0.0f), glm::vec3(1, 1, 1), matte, glm::normalize(glm::vec3(0, -1, 0))));
+    // scene.shapes.push_back(new Plane(glm::vec3(200.0f, 0.0f, 0.0f), glm::vec3(1, 0, 0), matte, glm::normalize(glm::vec3(-1, 0, 0))));
+    // scene.shapes.push_back(new Plane(glm::vec3(-200.0f, 0.0f, 0.0f), glm::vec3(0, 1, 0), matte, glm::normalize(glm::vec3(1, 0, 0))));
+    // scene.shapes.push_back(new Plane(glm::vec3(0.0f, 0.0f, -200.0f), glm::vec3(0, 0, 1), matte, glm::normalize(glm::vec3(0, 0, 1))));
+    // scene.shapes.push_back(new Plane(glm::vec3(0.0f, 0.0f, 100.0f), glm::vec3(1, 1, 1), matte, glm::normalize(glm::vec3(0, 0, -1))));
     // scene.shapes.push_back(new Plane(glm::vec3(0.0f, -30.0f, 0.0f), glm::vec3(1, 1, 1), glass, glm::normalize(glm::vec3(0, 1, 0))));
 
-    scene.shapes.push_back(new Sphere(glm::vec3(30.0f, 0.0f, -70.0f), glm::vec3(1, 0, 0), phong, 12.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(-40.0f, 0.0f, -70.0f), glm::vec3(0, 1, 0), phong, 18.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(-25.0f, 15.0f, -40.0f), glm::vec3(0, 0, 1), phong, 4.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(0.0f, 0.0f, -70.0f), glm::vec3(1, 1, 1), mirror, 16.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(20.0f, 35.0f, -90.0f), glm::vec3(1, 1, 0), phong, 10.0f));
-    scene.shapes.push_back(new Sphere(glm::vec3(15.0f, 10.0f, -40.0f), glm::vec3(1, 1, 1), refract, 10.0f));
+    // Spheres
+    // scene.shapes.push_back(new Sphere(glm::vec3(30.0f, 0.0f, -70.0f), glm::vec3(1, 0, 0), phong, 12.0f));
+    // scene.shapes.push_back(new Sphere(glm::vec3(-40.0f, 0.0f, -70.0f), glm::vec3(0, 1, 0), phong, 18.0f));
+    // scene.shapes.push_back(new Sphere(glm::vec3(-25.0f, 15.0f, -40.0f), glm::vec3(0, 0, 1), phong, 4.0f));
+    // scene.shapes.push_back(new Sphere(glm::vec3(0.0f, 0.0f, -70.0f), glm::vec3(1, 1, 1), mirror, 16.0f));
+    // scene.shapes.push_back(new Sphere(glm::vec3(20.0f, 35.0f, -90.0f), glm::vec3(1, 1, 0), phong, 10.0f));
+    // scene.shapes.push_back(new Sphere(glm::vec3(15.0f, 10.0f, -40.0f), glm::vec3(1, 1, 1), refract, 10.0f));
 
+    // Meshes
+    scene.shapes.push_back(new Mesh(glm::vec3(0.0f, -50.0f, -150.0f), glm::vec3(1, 1, 0), phong, "../res/teapot.obj"));
+
+    // Lights
     scene.lights.push_back(new PointLight(glm::vec3(50.0f, 50.0f, 10.0f), 50000, glm::vec3(1, 1, 0.25f)));
     scene.lights.push_back(new PointLight(glm::vec3(-30.0f, 40.0f, 10.0f), 50000, glm::vec3(0.25f, 1, 1)));
     scene.lights.push_back(new PointLight(glm::vec3(0.0f, 30.0f, -120.0f), 50000, glm::vec3(1, 1, 1)));
