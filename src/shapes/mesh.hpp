@@ -9,6 +9,7 @@
 #include <vector>
 #include <shapes/shape.hpp>
 #include <shapes/sphere.hpp>
+#include <core/bounding_box.hpp>
 
 struct vertex {
     int p;
@@ -38,6 +39,7 @@ private:
     std::vector<triangle> triangles;
     std::vector<glm::vec3> surfaceNormals;
     float scale;
+    BoundingBox* boundingBox;
 
 };
 

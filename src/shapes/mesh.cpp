@@ -9,9 +9,13 @@
 #include <core/constants.hpp>
 
 bool Mesh::intersect(Ray ray, float &t, glm::vec3 &n) {
+
+    // Ensure the ray intersects the bounding box before testing each triangle
+    if (!boundingBox->intersect(ray)) return false;
+
     bool hit = false;
     t = infinity;
-    int closestIndex;
+    int closestIndex = 0;
     glm::vec2 uv;
 
     for (int triangleIndex = 0; triangleIndex < triangles.size(); triangleIndex++) {
@@ -27,10 +31,10 @@ bool Mesh::intersect(Ray ray, float &t, glm::vec3 &n) {
     }
 
     if (hit) {
+        // Compute a smooth interpolated normal
         glm::vec3 n0 = normals[triangles[closestIndex].v[0].n];
         glm::vec3 n1 = normals[triangles[closestIndex].v[1].n];
         glm::vec3 n2 = normals[triangles[closestIndex].v[2].n];
-
         n = glm::normalize((1 - uv.x - uv.y) * n0 + uv.x * n1 + uv.y * n2);
     }
 
@@ -157,6 +161,8 @@ void Mesh::loadOBJFile(std::string filename) {
     }
 
     generateSurfaceNormals();
+
+    boundingBox = new BoundingBox(points);
 }
 
 void Mesh::generateSurfaceNormals() {
