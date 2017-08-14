@@ -1,0 +1,22 @@
+Begin Material
+    name glass
+    kr 1
+    kt 1
+    ior 1.5
+End
+
+#Begin Mesh
+    position 0 0 -80
+    color 0 1 1
+    material phong
+    scale 15
+    filename ../res/sphere.obj
+End
+
+#Begin Mesh
+    position 0 -50 -80
+    color 1 0 1
+    material phong
+    scale 5
+    filename ../res/bunny.obj
+End

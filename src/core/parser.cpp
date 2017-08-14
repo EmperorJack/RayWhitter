@@ -7,21 +7,13 @@
 #include <sstream>
 #include <map>
 #include <vector>
-#include <core/scene.hpp>
+#include <core/renderer.hpp>
 #include <core/material.hpp>
 #include <shapes/plane.hpp>
 #include <shapes/sphere.hpp>
 #include <shapes/mesh.hpp>
 
 using std::string;
-
-void println(string content) {
-    std::cout << content.c_str() << std::endl;
-}
-
-void print(string content) {
-    std::cout << content.c_str();
-}
 
 struct parseObject {
     string className;
@@ -55,7 +47,7 @@ std::vector<parseObject> getParseObjects(std::ifstream &fileStream) {
         if (lineTokens.size() == 0) continue;
 
         // Check for a "Begin"
-        if (split(line)[0].compare(string("Begin")) == 0) {
+        if (split(line)[0].compare("Begin") == 0) {
 
             parseObject parseObj;
             parseObj.className = lineTokens[1];
@@ -83,7 +75,116 @@ std::vector<parseObject> getParseObjects(std::ifstream &fileStream) {
     return parsedObjects;
 }
 
-Scene parseSceneFile(char* sceneFilename, int &imageWidth, int &imageHeight) {
+glm::vec3 parseVector(std::vector<string> values) {
+    return glm::vec3(
+            std::stof(values[0]),
+            std::stof(values[1]),
+            std::stof(values[2])
+    );
+}
+
+Material* parseMaterial(parseObject parseObj) {
+    Material* material = new Material();
+
+    if (parseObj.attributes.count("kd") != 0)
+        material->kd = std::stof(parseObj.attributes["kd"][0]);
+    if (parseObj.attributes.count("ks") != 0)
+        material->ks = std::stof(parseObj.attributes["ks"][0]);
+    if (parseObj.attributes.count("n") != 0)
+        material->n = std::stof(parseObj.attributes["n"][0]);
+    if (parseObj.attributes.count("kr") != 0)
+        material->kr = std::stof(parseObj.attributes["kr"][0]);
+    if (parseObj.attributes.count("kt") != 0)
+        material->kt = std::stof(parseObj.attributes["kt"][0]);
+    if (parseObj.attributes.count("ior") != 0)
+        material->ior = std::stof(parseObj.attributes["ior"][0]);
+
+    return material;
+}
+
+Plane* parsePlane(parseObject parseObj, std::map<string, Material*> materials) {
+    glm::vec3 position, albedo, normal;
+    Material* material = nullptr;
+
+    if (parseObj.attributes.count("position") != 0)
+        position = parseVector(parseObj.attributes["position"]);
+    if (parseObj.attributes.count("albedo") != 0)
+        albedo = parseVector(parseObj.attributes["albedo"]);
+    if (parseObj.attributes.count("material") != 0)
+        material = materials[parseObj.attributes["material"][0]];
+    if (parseObj.attributes.count("normal") != 0)
+        normal = parseVector(parseObj.attributes["normal"]);
+
+    // Set the default material if none as given
+    if (material == nullptr) {
+        material = materials["default"];
+    }
+
+    return new Plane(position, albedo, material, normal);
+}
+
+Sphere* parseSphere(parseObject parseObj, std::map<string, Material*> materials) {
+    glm::vec3 position, albedo;
+    float radius = 1.0f;
+    Material* material = nullptr;
+
+    if (parseObj.attributes.count("position") != 0)
+        position = parseVector(parseObj.attributes["position"]);
+    if (parseObj.attributes.count("albedo") != 0)
+        albedo = parseVector(parseObj.attributes["albedo"]);
+    if (parseObj.attributes.count("material") != 0)
+        material = materials[parseObj.attributes["material"][0]];
+    if (parseObj.attributes.count("radius") != 0)
+        radius = std::stof(parseObj.attributes["radius"][0]);
+
+    // Set the default material if none as given
+    if (material == nullptr) {
+        material = materials["default"];
+    }
+
+    return new Sphere(position, albedo, material, radius);
+}
+
+Mesh* parseMesh(parseObject parseObj, std::map<string, Material*> materials) {
+    glm::vec3 position, albedo;
+    string filename = "";
+    float scale = 1.0f;
+    Material* material = nullptr;
+
+    if (parseObj.attributes.count("position") != 0)
+        position = parseVector(parseObj.attributes["position"]);
+    if (parseObj.attributes.count("albedo") != 0)
+        albedo = parseVector(parseObj.attributes["albedo"]);
+    if (parseObj.attributes.count("material") != 0)
+        material = materials[parseObj.attributes["material"][0]];
+    if (parseObj.attributes.count("filename") != 0)
+        filename = parseObj.attributes["filename"][0];
+    if (parseObj.attributes.count("scale") != 0)
+        scale = std::stof(parseObj.attributes["scale"][0]);
+
+    // Set the default material if none as given
+    if (material == nullptr) {
+        material = materials["default"];
+    }
+
+    return new Mesh(position, albedo, material, filename, scale);
+}
+
+PointLight* parsePointLight(parseObject parseObj) {
+    glm::vec3 position, colour;
+    float intensity = 1.0f;
+
+    if (parseObj.attributes.count("position") != 0)
+        position = parseVector(parseObj.attributes["position"]);
+    if (parseObj.attributes.count("intensity") != 0)
+        intensity = std::stoi(parseObj.attributes["intensity"][0]);
+    if (parseObj.attributes.count("colour") != 0)
+        colour = parseVector(parseObj.attributes["colour"]);
+
+    return new PointLight(position, intensity, colour);
+}
+
+void parseSceneFile(char* sceneFilename, Renderer &renderer, Scene &scene, int &imageWidth, int &imageHeight) {
     std::ifstream fileStream(sceneFilename);
     string line;
     std::vector<string> lineTokens;
@@ -97,48 +198,33 @@ Scene parseSceneFile(char* sceneFilename, int &imageWidth, int &imageHeight) {
     // Get the parse objects from the remainder of the file
     std::vector<parseObject> parseObjects = getParseObjects(fileStream);
 
-    Scene scene = Scene(glm::vec3(0.0f, 0.0f, 0.0f));
-    return scene;
-}
+    // Store a list of materials including a default material
+    std::map<string, Material*> materials;
+    materials["default"] = new Material(0.5f);
 
-//
-//Scene makeScene() {
-//    glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-//
-//    Scene scene = Scene(cameraPosition);
-//
-//    Material* matte = new Material(1);
-//    Material* phong = new Material(0.8f, 0.2f, 12);
-//    Material* mirror = new Material(0, 0.2f, 8, 0.8f);
-//    Material* mirrorGround = new Material(0.7f, 0, 0, 0.3f);
-//    Material* glass = new Material(0, 0, 0, 0, 1, 1.5f);
-//    Material* refract = new Material(0, 0, 0, 1.0f, 1.0f, 1.7f);
-//
-//    // Room
-//    scene.shapes.push_back(new Plane(glm::vec3(0.0f, -120.0f, 0.0f), glm::vec3(1, 1, 1), matte, glm::normalize(glm::vec3(0, 1, 0))));
-//    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 120.0f, 0.0f), glm::vec3(1, 1, 1), matte, glm::normalize(glm::vec3(0, -1, 0))));
-//    scene.shapes.push_back(new Plane(glm::vec3(200.0f, 0.0f, 0.0f), glm::vec3(1, 0, 0), matte, glm::normalize(glm::vec3(-1, 0, 0))));
-//    scene.shapes.push_back(new Plane(glm::vec3(-200.0f, 0.0f, 0.0f), glm::vec3(0, 1, 0), matte, glm::normalize(glm::vec3(1, 0, 0))));
-//    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 0.0f, -200.0f), glm::vec3(0, 0, 1), matte, glm::normalize(glm::vec3(0, 0, 1))));
-//    scene.shapes.push_back(new Plane(glm::vec3(0.0f, 0.0f, 100.0f), glm::vec3(1, 1, 1), matte, glm::normalize(glm::vec3(0, 0, -1))));
-//
-//    // Spheres
-//    // scene.shapes.push_back(new Sphere(glm::vec3(30.0f, 0.0f, -70.0f), glm::vec3(1, 0, 0), phong, 12.0f));
-//    // scene.shapes.push_back(new Sphere(glm::vec3(-40.0f, 0.0f, -70.0f), glm::vec3(0, 1, 0), phong, 18.0f));
-//    // scene.shapes.push_back(new Sphere(glm::vec3(-25.0f, 15.0f, -40.0f), glm::vec3(0, 0, 1), phong, 4.0f));
-//    // scene.shapes.push_back(new Sphere(glm::vec3(0.0f, 0.0f, -70.0f), glm::vec3(1, 1, 1), mirror, 16.0f));
-//    // scene.shapes.push_back(new Sphere(glm::vec3(20.0f, 35.0f, -90.0f), glm::vec3(1, 1, 0), phong, 10.0f));
-//    // scene.shapes.push_back(new Sphere(glm::vec3(15.0f, 10.0f, -40.0f), glm::vec3(1, 1, 1), refract, 10.0f));
-//
-//    // Meshes
-//    // scene.shapes.push_back(new Mesh(glm::vec3(0.0f, 0.0f, -80.0f), glm::vec3(1, 1, 0), phong, "../res/sphere.obj", 15.0f));
-//    scene.shapes.push_back(new Mesh(glm::vec3(0.0f, -20.0f, -80.0f), glm::vec3(1, 1, 0), mirror, "../res/teapot.obj", 5.0f));
-//    // scene.shapes.push_back(new Mesh(glm::vec3(0.0f, -50.0f, -80.0f), glm::vec3(1, 1, 0), phong, "../res/bunny.obj", 5.0f));
-//
-//    // Lights
-//    scene.lights.push_back(new PointLight(glm::vec3(50.0f, 50.0f, 30.0f), 50000, glm::vec3(1, 1, 0.25f)));
-//    scene.lights.push_back(new PointLight(glm::vec3(-50.0f, 50.0f, 30.0f), 50000, glm::vec3(0.25f, 1, 1)));
-//    scene.lights.push_back(new PointLight(glm::vec3(0.0f, 30.0f, -140.0f), 50000, glm::vec3(1, 1, 1)));
-//
-//    return scene;
-//}
+    // Construct the scene and renderer objects from the parse objects
+    for (parseObject parseObj : parseObjects) {
+        if (parseObj.className.compare("Renderer") == 0) {
+            if (parseObj.attributes.count("fov") != 0)
+                renderer.fov = std::stoi(parseObj.attributes["fov"][0]);
+            if (parseObj.attributes.count("maxBounces") != 0)
+                renderer.maxBounces = std::stoi(parseObj.attributes["maxBounces"][0]);
+            if (parseObj.attributes.count("antiAliasing") != 0)
+                renderer.antiAliasingAmount = std::stoi(parseObj.attributes["antiAliasing"][0]);
+        } else if (parseObj.className.compare("Camera") == 0) {
+            if (parseObj.attributes.count("position") != 0)
+                scene.cameraPosition = parseVector(parseObj.attributes["position"]);
+        } else if (parseObj.className.compare("Material") == 0) {
+            if (parseObj.attributes.count("name") != 0)
+                materials[parseObj.attributes["name"][0]] = parseMaterial(parseObj);
+        } else if (parseObj.className.compare("Plane") == 0) {
+            scene.shapes.push_back(parsePlane(parseObj, materials));
+        } else if (parseObj.className.compare("Sphere") == 0) {
+            scene.shapes.push_back(parseSphere(parseObj, materials));
+        } else if (parseObj.className.compare("Mesh") == 0) {
+            scene.shapes.push_back(parseMesh(parseObj, materials));
+        } else if (parseObj.className.compare("PointLight") == 0) {
+            scene.lights.push_back(parsePointLight(parseObj));
+        }
+    }
+}
