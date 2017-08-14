@@ -1,4 +1,4 @@
-960 540 "test"
+960 540
 
 Begin Renderer
     fov "90"

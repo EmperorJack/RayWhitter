@@ -9,8 +9,14 @@
 #include <core/constants.hpp>
 #include <core/renderer.hpp>
 
-int main() {
-    std::cout << "Whitted Ray Tracer" << std::endl;
+int main(int argc, char *argv[]) {
+    fprintf(stdout, "RayWhitter - A Whitted Ray Tracer\n");
+
+    if (argc != 3) {
+        fprintf(stderr, "A scene filename and image output name must be provided!\n");
+        fprintf(stderr, "e.g: ./RayWhitter \"../res/scene.txt\" \"test\"\n");
+        return -1;
+    }
 
     const int imageWidth = 960;
     const int imageHeight = 540;
