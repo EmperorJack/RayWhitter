@@ -15,7 +15,13 @@ double clamp(double upper, double lower, double x) {
     return std::min(upper, std::max(x, lower));
 }
 
-glm::vec3** Renderer::render(const int width, const int height) {
+glm::vec3** Renderer::render(int width, int height) {
+    bool antiAliasing = antiAliasingAmount > 1;
+    if (antiAliasing) {
+        width *= antiAliasingAmount;
+        height *= antiAliasingAmount;
+    }
+
     glm::vec3** image = new glm::vec3*[width];
     for (int i = 0; i < width; i++) {
         image[i] = new glm::vec3[height];
@@ -42,21 +48,10 @@ glm::vec3** Renderer::render(const int width, const int height) {
 
             glm::vec3 colour;
 
-            if (distributed) {
-                for (int i = 0; i < 5; i++) {
-                    Ray ray = Ray(0);
-                    ray.origin = scene.cameraPosition;
-                    float xOffset = ((rand() % 200) - 100) / 100.0f;
-                    float yOffset = ((rand() % 200) - 100) / 100.0f;
-                    ray.direction = glm::normalize(glm::vec3(pixelCamera.x + xOffset / 1000.0f, pixelCamera.y - yOffset / 1000.0f, -1.0f) - scene.cameraPosition);
-                    colour += glm::clamp(castRay(scene, ray), 0.0f, 1.0f) * 0.2f;
-                }
-            } else {
-                Ray ray = Ray(0);
-                ray.origin = scene.cameraPosition;
-                ray.direction = glm::normalize(glm::vec3(pixelCamera.x, pixelCamera.y, -1.0f) - scene.cameraPosition);
-                colour = glm::clamp(castRay(scene, ray), 0.0f, 1.0f);
-            }
+            Ray ray = Ray(0);
+            ray.origin = scene.cameraPosition;
+            ray.direction = glm::normalize(glm::vec3(pixelCamera.x, pixelCamera.y, -1.0f) - scene.cameraPosition);
+            colour = glm::clamp(castRay(scene, ray), 0.0f, 1.0f);
 
             image[x][y] = colour;
 
@@ -66,6 +61,35 @@ glm::vec3** Renderer::render(const int width, const int height) {
                 std::cout << "[" << ((int) (percent * 100)) << "%" << "]" << "\r" << std::flush;
             }
         }
+    }
+
+    // Reduce larger image to original size if anti-aliasing was enabled
+    if (antiAliasing) {
+        int actualWidth = width / antiAliasingAmount;
+        int actualHeight = height / antiAliasingAmount;
+
+        glm::vec3** reducedImage = new glm::vec3*[actualWidth];
+        for (int i = 0; i < actualWidth; i++) {
+            reducedImage[i] = new glm::vec3[actualHeight];
+        }
+
+        // Sum the samples for each pixel
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                int i = (int) (x / (float) antiAliasingAmount);
+                int j = (int) (y / (float) antiAliasingAmount);
+                reducedImage[i][j] += image[x][y];
+            }
+        }
+
+        // Average the samples for each pixel
+        for (int i = 0; i < actualWidth; i++) {
+            for (int j = 0; j < actualHeight; j++) {
+                reducedImage[i][j] /= (float) (antiAliasingAmount * antiAliasingAmount);
+            }
+        }
+
+        image = reducedImage;
     }
 
     // End progress bar

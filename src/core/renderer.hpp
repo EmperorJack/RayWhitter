@@ -26,7 +26,7 @@ private:
 
     const float fov = 90.0f;
     const int maxBounces = 5;
-    const bool distributed = false;
+    const int antiAliasingAmount = 1; // 1 is no anti-aliasing
 
 };
 

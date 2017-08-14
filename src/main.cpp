@@ -12,8 +12,8 @@
 int main() {
     std::cout << "Whitted Ray Tracer" << std::endl;
 
-    const int imageWidth = 1920 / 2.0f;
-    const int imageHeight = 1080 / 2.0f;
+    const int imageWidth = 960;
+    const int imageHeight = 540;
 
     Renderer renderer;
     glm::vec3** image = renderer.render(imageWidth, imageHeight);
