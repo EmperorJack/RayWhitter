@@ -17,7 +17,7 @@ class Shape {
 public:
     Shape(glm::vec3 position, glm::vec3 albedo, Material* material) :
             position(position), albedo(albedo), material(material), id(nextId++) {}
-    virtual bool intersect(Ray ray, float &t, glm::vec3 &n);
+    virtual bool intersect(Ray ray, float &t, glm::vec3 &n, bool useBoundingBox);
 
     glm::vec3 position;
     glm::vec3 albedo;

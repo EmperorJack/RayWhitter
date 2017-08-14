@@ -26,7 +26,7 @@ class Mesh : public Shape {
 public:
     Mesh(glm::vec3 position, glm::vec3 albedo, Material* material, std::string filename, float scale = 1.0f) :
     Shape(position, albedo, material), scale(scale) { loadOBJFile(filename); }
-    bool intersect(Ray ray, float &t, glm::vec3 &n);
+    bool intersect(Ray ray, float &t, glm::vec3 &n, bool useBoundingBox);
 
 private:
     void loadOBJFile(std::string filename);

@@ -11,22 +11,23 @@
 class Material {
 
 public:
-    Material(float kd = 0.0f, float ks = 0.0f, float n = 8.0f, float kr = 0.0f, float kt = 0.0f, float ior = 1.0f) :
+    Material() {};
+    Material(float kd, float ks = 0.0f, float n = 8.0f, float kr = 0.0f, float kt = 0.0f, float ior = 1.0f) :
             kd(kd), ks(ks), n(n), kr(kr), kt(kt), ior(ior) {}
 
     // Matte
-    float kd;
+    float kd = 0.0f;
 
     // Phong
-    float ks;
-    float n;
+    float ks = 0.0f;
+    float n = 0.0f;
 
     // Reflection
-    float kr;
+    float kr = 0.0f;
 
     // Refraction
-    float kt;
-    float ior;
+    float kt = 0.0f;
+    float ior = 0.0f;
 
 };
 

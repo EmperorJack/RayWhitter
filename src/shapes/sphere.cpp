@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <shapes/sphere.hpp>
 
-bool Sphere::intersect(Ray ray, float &t, glm::vec3 &n) {
+bool Sphere::intersect(Ray ray, float &t, glm::vec3 &n, bool useBoundingBox) {
     glm::vec3 l = ray.origin - position;
     float a = glm::dot(ray.direction, ray.direction);
     float b = 2.0f * glm::dot(ray.direction, l);

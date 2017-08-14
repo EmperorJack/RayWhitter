@@ -11,10 +11,14 @@
 class Renderer {
 
 public:
-    glm::vec3** render(int width, int height);
+    glm::vec3** render(int width, int height, Scene scene);
+
+    float fov = 90.0f;
+    int maxBounces = 5;
+    int antiAliasingAmount = 1; // 1 is no anti-aliasing
+    bool useBoundingBox = true;
 
 private:
-    Scene makeScene();
     glm::vec3 castRay(Scene scene, Ray ray);
     glm::vec3 evaluatePhong(Ray ray, Intersection intersect, glm::vec3 lightDirection, glm::vec3 lightIntensity, float a);
     glm::vec3 evaluateReflection(Scene scene, Ray ray, Intersection intersect);
@@ -23,10 +27,6 @@ private:
 
     glm::vec3 backgroundColour = glm::vec3(0.8f);
     glm::vec3 shadowColour = glm::vec3(0);
-
-    const float fov = 90.0f;
-    const int maxBounces = 5;
-    const int antiAliasingAmount = 1; // 1 is no anti-aliasing
 
 };
 

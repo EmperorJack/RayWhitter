@@ -4,6 +4,6 @@
 
 #include <shapes/shape.hpp>
 
-bool Shape::intersect(Ray ray, float &t, glm::vec3 &n) {
+bool Shape::intersect(Ray ray, float &t, glm::vec3 &n, bool useBoundingBox) {
     return true;
 }

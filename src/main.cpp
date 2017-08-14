@@ -3,22 +3,34 @@
 //
 
 #include <iostream>
-#include <vector>
 #include <glm/glm.hpp>
 #include <jpge.h>
-#include <core/constants.hpp>
 #include <core/renderer.hpp>
 
-int main() {
-    std::cout << "Whitted Ray Tracer" << std::endl;
+void parseSceneFile(char* sceneFilename, Renderer &renderer, Scene &scene, int &imageWidth, int &imageHeight);
 
-    const int imageWidth = 960;
-    const int imageHeight = 540;
+int main(int argc, char *argv[]) {
+    fprintf(stdout, "RayWhitter - A Whitted Ray Tracer\n");
 
+    if (argc != 3) {
+        fprintf(stderr, "A scene filename and image output name must be provided!\n");
+        fprintf(stderr, "e.g: ./RayWhitter \"../res/teapot.txt\" \"test.jpg\"\n");
+        return -1;
+    }
+
+    char* sceneFilename = argv[1];
+    char* outFilename = argv[2];
+
+    int imageWidth, imageHeight;
     Renderer renderer;
-    glm::vec3** image = renderer.render(imageWidth, imageHeight);
+    Scene scene;
 
-    std::cout << "Writing image file...";
+    // Parse the scene file resulting in a renderer object, scene object and image dimensions
+    parseSceneFile(sceneFilename, renderer, scene, imageWidth, imageHeight);
+
+    glm::vec3** image = renderer.render(imageWidth, imageHeight, scene);
+
+    fprintf(stdout, "Writing image file...\n");
 
     uint8_t* data = new uint8_t[imageHeight * imageWidth * 3];
 
@@ -40,12 +52,12 @@ int main() {
     // Write the image data to a JPEG file
     jpge::params params;
     params.m_quality = 100;
-    jpge::compress_image_to_jpeg_file("test.jpg", imageWidth, imageHeight, 3, data, params);
+    jpge::compress_image_to_jpeg_file(outFilename, imageWidth, imageHeight, 3, data, params);
 
     delete[] image;
     delete[] data;
 
-    std::cout << " Finished" << std::endl;
+    fprintf(stdout, "Finished...\n");
 
     return 0;
 }
