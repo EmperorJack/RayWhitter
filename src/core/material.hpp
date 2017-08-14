@@ -20,7 +20,7 @@ public:
 
     // Phong
     float ks = 0.0f;
-    float n = 0.0f;
+    float n = 8.0f;
 
     // Reflection
     float kr = 0.0f;

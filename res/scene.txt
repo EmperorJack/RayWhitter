@@ -1,4 +1,4 @@
-1920 1080
+512 512
 
 Begin Renderer
     fov 90
@@ -18,8 +18,8 @@ End
 
 Begin Material
     name phong
-    kd 0.8
-    ks 0.2
+    kd 0.7
+    ks 0.3
     n 12
 End
 
@@ -31,16 +31,17 @@ Begin Material
 End
 
 Begin Material
-    name mirrorGround
-    kd 0.7
-    kr 0.3
-End
-
-Begin Material
     name refract
     kr 1
     kt 1
     ior 1.7
+End
+
+Begin Material
+    name glass
+    kr 1
+    kt 1
+    ior 1.5
 End
 
 Begin Plane
@@ -86,61 +87,20 @@ Begin Plane
 End
 
 Begin Sphere
-    position 30 0 -70
+    position 0 0 -40
     albedo 1 0 0
-    radius 12
-    material phong
-End
-
-Begin Sphere
-    position -40 0 -70
-    albedo 0 1 0
-    radius 18
-    material phong
-End
-
-Begin Sphere
-    position -25 15 -40
-    albedo 0 1 0
-    radius 4
-    material phong
-End
-
-Begin Sphere
-    position 0 0 -70
-    albedo 1 1 1
-    radius 16
-    material mirror
-End
-
-Begin Sphere
-    position 20 35 -90
-    albedo 1 1 0
-    radius 10
-    material phong
-End
-
-Begin Sphere
-    position 15 10 -40
-    albedo 1 1 1
-    radius 10
-    material refract
+    radius 20
+    material glass
 End
 
 Begin PointLight
-    position 50 50 30
-    intensity 75000
-    colour 1 1 0.25
+    position 60 40 -40
+    intensity 100000
+    colour 1 1 1
 End
 
 Begin PointLight
-    position -50 50 30
-    intensity 75000
-    colour 0.25 1 1
-End
-
-Begin PointLight
-    position 0 30 -140
-    intensity 50000
+    position -60 40 -40
+    intensity 100000
     colour 1 1 1
 End

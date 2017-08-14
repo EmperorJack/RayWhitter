@@ -159,7 +159,7 @@ glm::vec3 Renderer::evaluatePhong(Ray ray, Intersection intersect, glm::vec3 lig
     glm::vec3 specular;
     if (material->ks > 0.0f) {
         glm::vec3 reflect = glm::reflect(lightDirection, intersect.normal);
-        glm::vec3 specular = lightIntensity * std::pow(std::max(0.0f, glm::dot(reflect, -ray.direction)), material->n);
+        specular = lightIntensity * std::pow(std::max(0.0f, glm::dot(reflect, -ray.direction)), material->n);
     }
 
     return diffuse * material->kd + specular * material->ks;
