@@ -7,7 +7,7 @@ End
 
 #Begin Mesh
     position 0 0 -80
-    color 0 1 1
+    albedo 0 1 1
     material phong
     scale 15
     filename ../res/sphere.obj
@@ -15,7 +15,7 @@ End
 
 #Begin Mesh
     position 0 -50 -80
-    color 1 0 1
+    albedo 1 0 1
     material phong
     scale 5
     filename ../res/bunny.obj

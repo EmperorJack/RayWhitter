@@ -96,7 +96,7 @@ glm::vec3 Renderer::castRay(Scene scene, Ray ray) {
     glm::vec3 radiance;
 
     // Check for intersection
-    Intersection intersect = scene.intersect(ray);
+    Intersection intersect = scene.intersect(ray, useBoundingBox);
 
     if (intersect.hit) {
 
@@ -114,7 +114,7 @@ glm::vec3 Renderer::castRay(Scene scene, Ray ray) {
             Ray shadowRay = Ray(0);
             shadowRay.direction = -lightDirection;
             shadowRay.origin = intersect.point + 1.0f * shadowRay.direction;
-            Intersection shadowIntersect = scene.intersect(shadowRay);
+            Intersection shadowIntersect = scene.intersect(shadowRay, useBoundingBox);
 
             // Check if the light is shadowed
             bool visible = !(shadowIntersect.hit && shadowIntersect.t < lightDistance);

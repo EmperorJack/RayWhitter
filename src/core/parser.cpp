@@ -211,6 +211,8 @@ void parseSceneFile(char* sceneFilename, Renderer &renderer, Scene &scene, int &
                 renderer.maxBounces = std::stoi(parseObj.attributes["maxBounces"][0]);
             if (parseObj.attributes.count("antiAliasing") != 0)
                 renderer.antiAliasingAmount = std::stoi(parseObj.attributes["antiAliasing"][0]);
+            if (parseObj.attributes.count("useBoundingBox") != 0)
+                renderer.useBoundingBox = (bool) std::stoi(parseObj.attributes["useBoundingBox"][0]);
         } else if (parseObj.className.compare("Camera") == 0) {
             if (parseObj.attributes.count("position") != 0)
                 scene.cameraPosition = parseVector(parseObj.attributes["position"]);

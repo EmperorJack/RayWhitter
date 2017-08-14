@@ -13,7 +13,7 @@
 class Scene {
 
 public:
-    Intersection intersect(Ray ray);
+    Intersection intersect(Ray ray, bool useBoundingBox);
 
     glm::vec3 cameraPosition = glm::vec3(0, 0, 0);
     std::vector<Shape*> shapes;

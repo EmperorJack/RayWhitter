@@ -4,6 +4,7 @@ Begin Renderer
     fov 90
     maxBounces 5
     antiAliasing 1
+    useBoundingBox 1
 End
 
 Begin Camera
@@ -66,7 +67,7 @@ End
 
 Begin Mesh
     position 0 -20 -80
-    color 1 1 0
+    albedo 1 1 0
     material mirror
     scale 5
     filename ../res/teapot.obj
@@ -74,13 +75,13 @@ End
 
 Begin PointLight
     position 50 50 30
-    intensity 50000
+    intensity 75000
     colour 1 1 0.25
 End
 
 Begin PointLight
     position -50 50 30
-    intensity 50000
+    intensity 75000
     colour 0.25 1 1
 End
 

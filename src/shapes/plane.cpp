@@ -4,7 +4,7 @@
 
 #include <shapes/plane.hpp>
 
-bool Plane::intersect(Ray ray, float &t, glm::vec3 &n) {
+bool Plane::intersect(Ray ray, float &t, glm::vec3 &n, bool useBoundingBox) {
     float num = glm::dot(position - ray.origin, normal);
     float denom = glm::dot(normal, ray.direction);
 

@@ -4,6 +4,7 @@ Begin Renderer
     fov 90
     maxBounces 5
     antiAliasing 1
+    useBoundingBox 1
 End
 
 Begin Camera
@@ -72,6 +73,13 @@ Begin Plane
     material matte
 End
 
+Begin Plane
+    position 0 0 100
+    albedo 1 1 1
+    normal 0 0 -1
+    material matte
+End
+
 Begin Sphere
     position 30 0 -70
     albedo 1 0 0
@@ -114,23 +122,15 @@ Begin Sphere
     material refract
 End
 
-Begin Plane
-    position 0 0 100
-    albedo 1 1 1
-    normal 0 0 -1
-    material matte
-End
-
-
 Begin PointLight
     position 50 50 30
-    intensity 50000
+    intensity 75000
     colour 1 1 0.25
 End
 
 Begin PointLight
     position -50 50 30
-    intensity 50000
+    intensity 75000
     colour 0.25 1 1
 End
 

@@ -8,10 +8,10 @@
 #include <shapes/mesh.hpp>
 #include <core/constants.hpp>
 
-bool Mesh::intersect(Ray ray, float &t, glm::vec3 &n) {
+bool Mesh::intersect(Ray ray, float &t, glm::vec3 &n, bool useBoundingBox) {
 
     // Ensure the ray intersects the bounding box before testing each triangle
-    if (!boundingBox->intersect(ray)) return false;
+    if (useBoundingBox && !boundingBox->intersect(ray)) return false;
 
     bool hit = false;
     t = infinity;

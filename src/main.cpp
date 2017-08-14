@@ -24,6 +24,8 @@ int main(int argc, char *argv[]) {
     int imageWidth, imageHeight;
     Renderer renderer;
     Scene scene;
+
+    // Parse the scene file resulting in a renderer object, scene object and image dimensions
     parseSceneFile(sceneFilename, renderer, scene, imageWidth, imageHeight);
 
     glm::vec3** image = renderer.render(imageWidth, imageHeight, scene);

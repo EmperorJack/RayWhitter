@@ -16,6 +16,7 @@ public:
     float fov = 90.0f;
     int maxBounces = 5;
     int antiAliasingAmount = 1; // 1 is no anti-aliasing
+    bool useBoundingBox = true;
 
 private:
     glm::vec3 castRay(Scene scene, Ray ray);
