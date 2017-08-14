@@ -1,9 +1,9 @@
-1920 1080
+960 540
 
 Begin Renderer
     fov 90
     maxBounces 5
-    antiAliasing 4
+    antiAliasing 1
     useBoundingBox 1
 End
 

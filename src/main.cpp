@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <ctime>
 #include <glm/glm.hpp>
 #include <jpge.h>
 #include <core/renderer.hpp>
@@ -28,7 +29,15 @@ int main(int argc, char *argv[]) {
     // Parse the scene file resulting in a renderer object, scene object and image dimensions
     parseSceneFile(sceneFilename, renderer, scene, imageWidth, imageHeight);
 
+    // Begin timing
+    clock_t begin = clock();
+
     glm::vec3** image = renderer.render(imageWidth, imageHeight, scene);
+
+    // Finish timing
+    clock_t end = clock();
+    double timeElapsed = double(end - begin) / CLOCKS_PER_SEC;
+    std::cout << "Time taken: " << timeElapsed << " seconds" << std::endl;
 
     fprintf(stdout, "Writing image file...\n");
 
