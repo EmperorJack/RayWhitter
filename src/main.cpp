@@ -9,6 +9,8 @@
 #include <core/constants.hpp>
 #include <core/renderer.hpp>
 
+Scene parseSceneFile(char* sceneFilename, int &imageWidth, int &imageHeight);
+
 int main(int argc, char *argv[]) {
     fprintf(stdout, "RayWhitter - A Whitted Ray Tracer\n");
 
@@ -18,13 +20,17 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    const int imageWidth = 960;
-    const int imageHeight = 540;
+    char* sceneFilename = argv[1];
+    char* outFilename = argv[2];
+
+    int imageWidth;
+    int imageHeight;
+    Scene scene = parseSceneFile(sceneFilename, imageWidth, imageHeight);
 
     Renderer renderer;
-    glm::vec3** image = renderer.render(imageWidth, imageHeight);
+    glm::vec3** image = renderer.render(imageWidth, imageHeight, scene);
 
-    std::cout << "Writing image file...";
+    fprintf(stdout, "Writing image file...\n");
 
     uint8_t* data = new uint8_t[imageHeight * imageWidth * 3];
 
@@ -46,12 +52,12 @@ int main(int argc, char *argv[]) {
     // Write the image data to a JPEG file
     jpge::params params;
     params.m_quality = 100;
-    jpge::compress_image_to_jpeg_file("test.jpg", imageWidth, imageHeight, 3, data, params);
+    jpge::compress_image_to_jpeg_file("test2.jpg", imageWidth, imageHeight, 3, data, params);
 
     delete[] image;
     delete[] data;
 
-    std::cout << " Finished" << std::endl;
+    fprintf(stdout, "Finished...\n");
 
     return 0;
 }

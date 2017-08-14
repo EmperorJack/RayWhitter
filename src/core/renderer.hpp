@@ -11,10 +11,9 @@
 class Renderer {
 
 public:
-    glm::vec3** render(int width, int height);
+    glm::vec3** render(int width, int height, Scene scene);
 
 private:
-    Scene makeScene();
     glm::vec3 castRay(Scene scene, Ray ray);
     glm::vec3 evaluatePhong(Ray ray, Intersection intersect, glm::vec3 lightDirection, glm::vec3 lightIntensity, float a);
     glm::vec3 evaluateReflection(Scene scene, Ray ray, Intersection intersect);
