@@ -2,8 +2,10 @@
 // Created by Jack Purvis
 //
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <algorithm>
 #include <iostream>
-#include <random>
 #include <core/renderer.hpp>
 #include <core/constants.hpp>
 #include <core/material.hpp>

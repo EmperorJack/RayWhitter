@@ -31,3 +31,4 @@ private:
 };
 
 #endif //RAYWHITTER_RENDERER_HPP
+
